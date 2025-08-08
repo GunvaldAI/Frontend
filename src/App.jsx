@@ -13,12 +13,11 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-      
     setContent("");
+
     try {
-        
-      const response = await fetch("/api/generate", {
-          
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+      const response = await fetch(`${API_BASE_URL}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ companyName, industry, tone, campaign }),
@@ -27,14 +26,13 @@ function App() {
         throw new Error("Failed to generate content");
       }
       const data = await response.json();
-      setContent(data.content || "");
+      setContent(data.content || JSON.stringify(data, null, 2));
     } catch (err) {
       setError(err.message || "Error generating content");
     } finally {
       setLoading(false);
     }
- 
-  ;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -85,7 +83,6 @@ function App() {
         </div>
         <button
           type="submit"
-
           className="bg-blue-600 text-white rounded w-full p-2 mt-2"
           disabled={loading}
         >
