@@ -13,9 +13,12 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+      
     setContent("");
     try {
+        
       const response = await fetch("/api/generate", {
+          
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ companyName, industry, tone, campaign }),
@@ -30,7 +33,8 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+ 
+  ;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -81,6 +85,7 @@ function App() {
         </div>
         <button
           type="submit"
+
           className="bg-blue-600 text-white rounded w-full p-2 mt-2"
           disabled={loading}
         >
