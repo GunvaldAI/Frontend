@@ -1,0 +1,127 @@
+// Prisma schema for Gunvald backend
+// Defines simple models for user accounts and generated posts.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// User model representing an account. Users can belong to one or more
+/// organizations via the join table `UsersOnOrganizations`. A user can
+/// optionally act as the creator of posts.
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  name       String?
+  // posts created by this user
+  posts      Post[]   @relation("UserPosts")
+  // relation to organizations
+  organizations UsersOnOrganizations[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+/// Organization represents a company or customer entity. An
+/// organization can have multiple users associated with it via
+/// `UsersOnOrganizations` and can own multiple brand profiles.
+model Organization {
+  id           Int       @id @default(autoincrement())
+  name         String
+  // optional slug or unique identifier
+  slug         String?   @unique
+  users        UsersOnOrganizations[]
+  brandProfiles BrandProfile[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+/// Join table for the many‑to‑many relationship between users and
+/// organizations. It can store additional metadata such as role and
+/// join date.
+model UsersOnOrganizations {
+  userId         Int
+  organizationId Int
+  role           String?   // e.g. owner, admin, member
+  joinedAt       DateTime   @default(now())
+
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@id([userId, organizationId])
+}
+
+/// BrandProfile stores the brand‑specific configuration used when
+/// generating content (tone, colors, etc.). Each organization can have
+/// multiple brand profiles—for example, if they manage several brands or
+/// product lines. The profile links to multiple channels and posts.
+model BrandProfile {
+  id             Int         @id @default(autoincrement())
+  organizationId Int
+  name           String
+  description    String?
+  tone           String?     // e.g. formal, friendly, humorous
+  primaryColor   String?
+  secondaryColor String?
+  channels       Channel[]
+  posts          Post[]
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+/// Supported social media platforms. When adding new channel types in
+/// the future, add them here.
+enum ChannelType {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  TWITTER
+  LINKEDIN
+  OTHER
+}
+
+/// Channel represents a specific social media account or page. It
+/// belongs to a brand profile and stores any necessary tokens for
+/// publishing content. Posts are optionally tied to a channel when
+/// scheduled or published.
+model Channel {
+  id             Int          @id @default(autoincrement())
+  brandProfileId Int
+  type           ChannelType
+  externalId     String?      // platform‑specific identifier (e.g. page ID)
+  accessToken    String?
+  refreshToken   String?
+  posts          Post[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+}
+
+/// Post model stores the generated social media content. The `content`
+/// field stores JSON containing the post data (text, hashtags, image
+/// URLs, etc.). A post belongs to a brand profile and can optionally
+/// reference a channel (for scheduled/published posts) and the user
+/// who created it.
+model Post {
+  id             Int          @id @default(autoincrement())
+  title          String?
+  content        Json
+  brandProfileId Int
+  channelId      Int?
+  createdById    Int?
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  brandProfile   BrandProfile @relation(fields: [brandProfileId], references: [id])
+  channel        Channel?     @relation(fields: [channelId], references: [id])
+  creator        User?        @relation("UserPosts", fields: [createdById], references: [id])
+}
