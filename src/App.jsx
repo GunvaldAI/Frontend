@@ -5,7 +5,7 @@ function App() {
   const [industry, setIndustry] = useState("");
   const [tone, setTone] = useState("");
   const [campaign, setCampaign] = useState("");
-  const [content, setContent] = useState("");
+  const [posts, setPosts] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -13,8 +13,7 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setContent("");
-
+    setPosts(null);
     try {
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
       const response = await fetch(`${API_BASE_URL}/api/generate`, {
@@ -26,9 +25,11 @@ function App() {
         throw new Error("Failed to generate content");
       }
       const data = await response.json();
-      setContent(data.content || JSON.stringify(data, null, 2));
+      // Support both array and object responses
+      const postsArray = Array.isArray(data) ? data : data.posts || [];
+      setPosts(postsArray);
     } catch (err) {
-      setError(err.message || "Error generating content");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -66,9 +67,9 @@ function App() {
             required
           >
             <option value="">Valitse sävy</option>
-            <option value="rent">Rent</option>
-            <option value="virallinen">Virallinen</option>
-            <option value="hauska">Hauska</option>
+            <option value="Rent">Rent</option>
+            <option value="Virallinen">Virallinen</option>
+            <option value="Hauska">Hauska</option>
           </select>
         </div>
         <div>
@@ -83,16 +84,40 @@ function App() {
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white rounded w-full p-2 mt-2"
+          className="bg-blue-500 text-white rounded w-full p-2 mt-2"
           disabled={loading}
         >
           {loading ? "Generoi..." : "Generoi sisältö"}
         </button>
       </form>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-      {content && (
-        <div className="mt-4 p-4 bg-gray-100 rounded">
-          <pre className="whitespace-pre-wrap">{content}</pre>
+      {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+      {posts && (
+        <div className="mt-8 space-y-6 max-w-md mx-auto">
+          {posts.map((post, index) => (
+            <div
+              key={index}
+              className="border bg-gray-100 p-4 rounded shadow-sm"
+            >
+              {post.date && (
+                <h3 className="font-semibold mb-2">{post.date}</h3>
+              )}
+              {post.text && <p>{post.text}</p>}
+              {post.image_url && (
+                <img
+                  src={post.image_url}
+                  alt="Generated visual"
+                  className="mt-2 rounded"
+                />
+              )}
+              {post.hashtags && (
+                <p className="mt-2 text-sm text-gray-600">
+                  {Array.isArray(post.hashtags)
+                    ? post.hashtags.join(" ")
+                    : post.hashtags}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
