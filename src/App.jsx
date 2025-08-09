@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import ProfilePage from './components/ ProfilePage.jsx';
+import ProfilePage from './components/ProfilePage.jsx';
+
 // Separate component definitions outside of App to preserve focus during re-renders.
 
 const Home = ({ setView }) => (
@@ -22,6 +23,12 @@ const Home = ({ setView }) => (
           className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
         >
           Rekisteröidy
+        </button>
+        <button
+          onClick={() => setView('profile')}
+          className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
+        >
+          Täydennä profiili
         </button>
       </div>
     </div>
@@ -384,6 +391,7 @@ function App() {
           setView={setView}
         />
       )}
+      {view === 'profile' && <ProfilePage />}
     </div>
   );
 }
