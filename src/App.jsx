@@ -25,7 +25,10 @@ function App() {
         throw new Error("Failed to generate content");
       }
       const data = await response.json();
-      const postsArray = Array.isArray(data) ? data : data.posts || [];
+      // data may be an array (if backend returns posts directly) or an object containing posts/content
+      const postsArray = Array.isArray(data)
+        ? data
+        : data.posts || data.content || [];
       setPosts(postsArray);
     } catch (err) {
       setError(err.message);
@@ -39,7 +42,8 @@ function App() {
       <header className="text-center my-8">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">Gunvald</h1>
         <p className="text-lg md:text-xl text-gray-600 max-w-lg">
-          Automaattinen sisällöntuottaja PK-yrityksille – generoi ja julkaise somesisältö vaivattomasti.
+          Automaattinen sisällöntuottaja PK-yrityksille – generoi ja julkaise somesisältö
+          vaivattomasti.
         </p>
       </header>
       <div className="bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-8 w-full max-w-lg">
@@ -101,16 +105,11 @@ function App() {
         </form>
         {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
       </div>
-      {posts && (
+      {posts && posts.length > 0 && (
         <div className="mt-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
           {posts.map((post, index) => (
-            <div
-              key={index}
-              className="bg-white/90 backdrop-blur-lg p-6 rounded-xl shadow-md flex flex-col"
-            >
-              {post.date && (
-                <span className="text-sm text-gray-500 mb-2">{post.date}</span>
-              )}
+            <div key={index} className="bg-white/90 backdrop-blur-lg p-6 rounded-xl shadow-md flex flex-col">
+              {post.date && <span className="text-sm text-gray-500 mb-2">{post.date}</span>}
               {post.text && <p className="text-gray-700 font-medium">{post.text}</p>}
               {post.image_url && (
                 <img
@@ -121,9 +120,7 @@ function App() {
               )}
               {post.hashtags && (
                 <p className="mt-3 text-sm text-gray-500">
-                  {Array.isArray(post.hashtags)
-                    ? post.hashtags.join(" ")
-                    : post.hashtags}
+                  {Array.isArray(post.hashtags) ? post.hashtags.join(" ") : post.hashtags}
                 </p>
               )}
             </div>
