@@ -1,134 +1,349 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 function App() {
-  const [companyName, setCompanyName] = useState("");
-  const [industry, setIndustry] = useState("");
-  const [tone, setTone] = useState("");
-  const [campaign, setCampaign] = useState("");
-  const [posts, setPosts] = useState(null);
+  const [view, setView] = useState('home');
+  const [registerInfo, setRegisterInfo] = useState({
+    companyName: '',
+    industry: '',
+    email: '',
+    password: '',
+  });
+  const [loginInfo, setLoginInfo] = useState({
+    email: '',
+    password: '',
+  });
+  const [generateInfo, setGenerateInfo] = useState({
+    companyName: '',
+    industry: '',
+    tone: 'Innostunut',
+    campaign: '',
+  });
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleGenerateChange = (e) => {
+    const { name, value } = e.target;
+    setGenerateInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    // In a real app, here you would send registerInfo to your auth service
+    // For now we just set the company info into generateInfo and go to generate view
+    setGenerateInfo((prev) => ({
+      ...prev,
+      companyName: registerInfo.companyName,
+      industry: registerInfo.industry,
+    }));
+    setView('generate');
+  };
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    // In a real app, authenticate user
+    setView('generate');
+  };
+
+  const handleGenerateSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setPosts(null);
+    setError('');
+    setPosts([]);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
       const response = await fetch(`${API_BASE_URL}/api/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyName, industry, tone, campaign }),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(generateInfo),
       });
       if (!response.ok) {
-        throw new Error("Failed to generate content");
+        throw new Error('Failed to generate content');
       }
       const data = await response.json();
-      // data may be an array (if backend returns posts directly) or an object containing posts/content
+      // Some APIs may return the posts array directly, or under posts or content
       const postsArray = Array.isArray(data)
         ? data
         : data.posts || data.content || [];
       setPosts(postsArray);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center p-6">
-      <header className="text-center my-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">Gunvald</h1>
-        <p className="text-lg md:text-xl text-gray-600 max-w-lg">
-          Automaattinen sisällöntuottaja PK-yrityksille – generoi ja julkaise somesisältö
-          vaivattomasti.
+  // Components for each view
+  const Home = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 flex items-center justify-center p-4">
+      <div className="text-center text-white space-y-6">
+        <h1 className="text-5xl md:text-7xl font-extrabold">Gunvald</h1>
+        <p className="text-xl md:text-2xl max-w-xl mx-auto">
+          Tekoälyavusteinen sosiaalisen median assistentti. Luo ja hallinnoi sisältöä nopeasti.
         </p>
-      </header>
-      <div className="bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-8 w-full max-w-lg">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
+          <button
+            onClick={() => setView('login')}
+            className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
+          >
+            Kirjaudu sisään
+          </button>
+          <button
+            onClick={() => setView('register')}
+            className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
+          >
+            Rekisteröidy
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const Register = () => (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Rekisteröidy</h2>
+        <form onSubmit={handleRegisterSubmit} className="space-y-4">
           <div>
-            <label className="block mb-1 font-medium text-gray-700">Yrityksen nimi</label>
+            <label className="block text-gray-700 mb-1">Yrityksen nimi</label>
             <input
               type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              className="border rounded w-full p-3 focus:ring-2 focus:ring-purple-400"
-              placeholder="Esim. Kahvila Oy"
+              name="companyName"
+              value={registerInfo.companyName}
+              onChange={handleRegisterChange}
               required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block mb-1 font-medium text-gray-700">Toimiala</label>
+            <label className="block text-gray-700 mb-1">Toimiala</label>
             <input
               type="text"
-              value={industry}
-              onChange={(e) => setIndustry(e.target.value)}
-              className="border rounded w-full p-3 focus:ring-2 focus:ring-purple-400"
-              placeholder="Esim. Ravintola"
+              name="industry"
+              value={registerInfo.industry}
+              onChange={handleRegisterChange}
               required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block mb-1 font-medium text-gray-700">Brändin sävy</label>
-            <select
-              value={tone}
-              onChange={(e) => setTone(e.target.value)}
-              className="border rounded w-full p-3 focus:ring-2 focus:ring-purple-400"
+            <label className="block text-gray-700 mb-1">Sähköposti</label>
+            <input
+              type="email"
+              name="email"
+              value={registerInfo.email}
+              onChange={handleRegisterChange}
               required
-            >
-              <option value="">Valitse sävy</option>
-              <option value="Rent">Rent</option>
-              <option value="Virallinen">Virallinen</option>
-              <option value="Hauska">Hauska</option>
-            </select>
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
           <div>
-            <label className="block mb-1 font-medium text-gray-700">Kampanjateema</label>
+            <label className="block text-gray-700 mb-1">Salasana</label>
             <input
-              type="text"
-              value={campaign}
-              onChange={(e) => setCampaign(e.target.value)}
-              className="border rounded w-full p-3 focus:ring-2 focus:ring-purple-400"
-              placeholder="Esim. Syyskampanja"
+              type="password"
+              name="password"
+              value={registerInfo.password}
+              onChange={handleRegisterChange}
               required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             type="submit"
-            className="w-full py-3 mt-2 rounded bg-purple-600 hover:bg-purple-700 text-white font-semibold transition"
-            disabled={loading}
+            className="w-full bg-blue-600 text-white font-semibold py-3 rounded hover:bg-blue-700 transition"
           >
-            {loading ? "Generoi..." : "Generoi sisältö"}
+            Rekisteröidy
           </button>
         </form>
-        {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+        <p className="mt-4 text-sm text-gray-600">
+          Onko sinulla jo tili?{' '}
+          <button onClick={() => setView('login')} className="text-blue-600 hover:underline">
+            Kirjaudu sisään
+          </button>
+        </p>
+        <button
+          onClick={() => setView('home')}
+          className="mt-6 text-sm text-blue-600 hover:underline"
+        >
+          Palaa etusivulle
+        </button>
       </div>
-      {posts && posts.length > 0 && (
-        <div className="mt-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
-          {posts.map((post, index) => (
-            <div key={index} className="bg-white/90 backdrop-blur-lg p-6 rounded-xl shadow-md flex flex-col">
-              {post.date && <span className="text-sm text-gray-500 mb-2">{post.date}</span>}
-              {post.text && <p className="text-gray-700 font-medium">{post.text}</p>}
-              {post.image_url && (
-                <img
-                  src={post.image_url}
-                  alt="Generoitu kuva"
-                  className="mt-3 rounded-md object-cover w-full h-48"
-                />
-              )}
-              {post.hashtags && (
-                <p className="mt-3 text-sm text-gray-500">
-                  {Array.isArray(post.hashtags) ? post.hashtags.join(" ") : post.hashtags}
-                </p>
-              )}
-            </div>
-          ))}
+    </div>
+  );
+
+  const Login = () => (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Kirjaudu sisään</h2>
+        <form onSubmit={handleLoginSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-700 mb-1">Sähköposti</label>
+            <input
+              type="email"
+              name="email"
+              value={loginInfo.email}
+              onChange={handleLoginChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">Salasana</label>
+            <input
+              type="password"
+              name="password"
+              value={loginInfo.password}
+              onChange={handleLoginChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-semibold py-3 rounded hover:bg-blue-700 transition"
+          >
+            Kirjaudu
+          </button>
+        </form>
+        <p className="mt-4 text-sm text-gray-600">
+          Ei tiliä vielä?{' '}
+          <button onClick={() => setView('register')} className="text-blue-600 hover:underline">
+            Rekisteröidy
+          </button>
+        </p>
+        <button
+          onClick={() => setView('home')}
+          className="mt-6 text-sm text-blue-600 hover:underline"
+        >
+          Palaa etusivulle
+        </button>
+      </div>
+    </div>
+  );
+
+  const Generate = () => (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-800">Generoi sisältöä</h2>
+          <button onClick={() => setView('home')} className="text-blue-600 hover:underline">
+            Takaisin etusivulle
+          </button>
         </div>
-      )}
+        <form onSubmit={handleGenerateSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow">
+          <div>
+            <label className="block text-gray-700 mb-1">Yrityksen nimi</label>
+            <input
+              type="text"
+              name="companyName"
+              value={generateInfo.companyName}
+              onChange={handleGenerateChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">Toimiala</label>
+            <input
+              type="text"
+              name="industry"
+              value={generateInfo.industry}
+              onChange={handleGenerateChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">Sävyn valinta</label>
+            <select
+              name="tone"
+              value={generateInfo.tone}
+              onChange={handleGenerateChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Innostunut">Innostunut</option>
+              <option value="Asiallinen">Asiallinen</option>
+              <option value="Hauska">Hauska</option>
+              <option value="Rento">Rento</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">Kampanjan teema</label>
+            <input
+              type="text"
+              name="campaign"
+              value={generateInfo.campaign}
+              onChange={handleGenerateChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-semibold py-3 rounded hover:bg-blue-700 transition"
+            disabled={loading}
+          >
+            {loading ? 'Generoi...' : 'Generoi sisältö'}
+          </button>
+        </form>
+        {error && <p className="text-red-500 mt-4">{error}</p>}
+        {posts.length > 0 && (
+          <div className="mt-6 space-y-6">
+            {posts.map((post, idx) => (
+              <div key={idx} className="bg-white p-6 rounded-lg shadow">
+                {post.date && (
+                  <p className="text-gray-500 mb-2 font-medium">{post.date}</p>
+                )}
+                <p className="text-gray-800 mb-3">{post.text}</p>
+                {post.image_url && (
+                  <img
+                    src={post.image_url}
+                    alt="Generated visual"
+                    className="w-full h-auto rounded mb-3"
+                  />
+                )}
+                {post.hashtags && post.hashtags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {post.hashtags.map((tag, tagIdx) => (
+                      <span
+                        key={tagIdx}
+                        className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="font-sans">
+      {view === 'home' && <Home />}
+      {view === 'register' && <Register />}
+      {view === 'login' && <Login />}
+      {view === 'generate' && <Generate />}
     </div>
   );
 }
 
 export default App;
+
