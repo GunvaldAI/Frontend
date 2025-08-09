@@ -39,21 +39,24 @@ async function generateContentWithImages(companyName, industry, tone, campaign) 
     throw new Error('Failed to parse content from ChatGPT: ' + err.message);
   }
 
-  // Now, loop through each post and generate an image for its prompt
-  for (const post of posts) {
-    if (!post.image_prompt) continue;
+  // Now, loop through posts and generate images for the first few only.  
+  // Generating many images can take a long time, so we limit the number
+  // of images to avoid long response times.  
+  const MAX_IMAGES = 2; // limit to 2 images for faster responses
+  for (const [index, post] of posts.entries()) {
+    // Only generate an image if we haven't reached the limit and the prompt exists
+    if (index >= MAX_IMAGES || !post.image_prompt) continue;
     try {
       const imgResponse = await openai.images.generate({
         prompt: post.image_prompt,
         n: 1,
         size: '512x512',
       });
-      // The new OpenAI Node client returns the images in data array
       if (imgResponse && imgResponse.data && imgResponse.data.length > 0) {
         post.image_url = imgResponse.data[0].url;
       }
     } catch (err) {
-      // If image generation fails, continue without it
+      // If image generation fails, log the error but continue processing
       console.error('Image generation error:', err.message);
     }
   }
