@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ProfilePage from './components/ProfilePage.jsx';
+import BrandProfileForm from './components/BrandProfileForm.jsx';
 
 // Separate component definitions outside of App to preserve focus during re-renders.
 
@@ -29,6 +30,12 @@ const Home = ({ setView }) => (
           className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
         >
           Täydennä profiili
+        </button>
+        <button
+          onClick={() => setView('brand')}
+          className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
+        >
+          Brändiasetukset
         </button>
       </div>
     </div>
@@ -304,14 +311,35 @@ function App() {
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
-    // Here you'd typically send registerInfo to a backend
-    // For this example, pre-fill generateInfo and proceed to generate view
-    setGenerateInfo((prev) => ({
-      ...prev,
-      companyName: registerInfo.companyName,
-      industry: registerInfo.industry,
-    }));
-    setView('generate');
+    // Register the user via the backend and store the JWT token. Then redirect to brand profile view.
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: registerInfo.email,
+            password: registerInfo.password,
+          }),
+        });
+        if (!res.ok) throw new Error('Rekisteröityminen epäonnistui');
+        const data = await res.json();
+        const { token } = data;
+        localStorage.setItem('token', token);
+        // Optional: pre-fill generate info
+        setGenerateInfo((prev) => ({
+          ...prev,
+          companyName: registerInfo.companyName,
+          industry: registerInfo.industry,
+        }));
+        setView('profile');
+      } catch (err) {
+        console.error(err);
+        alert(err.message || 'Rekisteröityminen epäonnistui');
+      }
+    })();
   };
 
   // Handlers for login inputs and submission
@@ -322,8 +350,29 @@ function App() {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    // Authentication logic would go here
-    setView('generate');
+    // Log in the user via the backend and store the JWT token. Redirect to brand profile view.
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: loginInfo.email,
+            password: loginInfo.password,
+          }),
+        });
+        if (!res.ok) throw new Error('Kirjautuminen epäonnistui');
+        const data = await res.json();
+        const { token } = data;
+        localStorage.setItem('token', token);
+        setView('profile');
+      } catch (err) {
+        console.error(err);
+        alert(err.message || 'Kirjautuminen epäonnistui');
+      }
+    })();
   };
 
   // Handlers for content generation inputs and submission
@@ -338,10 +387,12 @@ function App() {
     setError('');
     setPosts([]);
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : undefined,
         },
         body: JSON.stringify(generateInfo),
       });
@@ -392,6 +443,7 @@ function App() {
         />
       )}
       {view === 'profile' && <ProfilePage />}
+      {view === 'brand' && <BrandProfileForm />}
     </div>
   );
 }
