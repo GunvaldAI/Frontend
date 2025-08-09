@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import ProfilePage from './components/ ProfilePage.jsx';
 // Separate component definitions outside of App to preserve focus during re-renders.
 
 const Home = ({ setView }) => (
