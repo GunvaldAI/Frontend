@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ProfilePage from './components/ProfilePage.jsx';
 import BrandProfileForm from './components/BrandProfileForm.jsx';
+import ContentCalendar from './components/ContentCalendar.jsx';
 
 // Separate component definitions outside of App to preserve focus during re-renders.
 
@@ -36,6 +37,12 @@ const Home = ({ setView }) => (
           className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
         >
           Brändiasetukset
+        </button>
+        <button
+          onClick={() => setView('calendar')}
+          className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
+        >
+          Sisältökalenteri
         </button>
       </div>
     </div>
@@ -444,6 +451,7 @@ function App() {
       )}
       {view === 'profile' && <ProfilePage />}
       {view === 'brand' && <BrandProfileForm />}
+      {view === 'calendar' && <ContentCalendar />}
     </div>
   );
 }
