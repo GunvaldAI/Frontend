@@ -50,9 +50,9 @@ function ContentCalendar() {
         body: JSON.stringify({ postId, publishAt: newDate }),
       });
       if (!res.ok) throw new Error('Failed to schedule post');
-      // Update local state with new publishAt
+      // Update local state with new scheduled_at date
       setPosts((prev) =>
-        prev.map((p) => (p.id === postId ? { ...p, publishAt: newDate } : p))
+        prev.map((p) => (p.id === postId ? { ...p, scheduled_at: newDate } : p))
       );
     } catch (e) {
       console.error(e);
@@ -60,10 +60,10 @@ function ContentCalendar() {
     }
   }
 
-  // Group posts by date string for display
+  // Group posts by scheduled date string for display
   const groupedPosts = posts.reduce((acc, post) => {
-    const dateKey = post.publishAt
-      ? new Date(post.publishAt).toDateString()
+    const dateKey = post.scheduled_at
+      ? new Date(post.scheduled_at).toDateString()
       : 'Ei ajastusta';
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(post);
@@ -83,7 +83,7 @@ function ContentCalendar() {
           <ul className="space-y-2">
             {groupedPosts[date].map((post) => (
               <li key={post.id} className="border rounded p-3">
-                <p className="font-medium mb-1">{post.content}</p>
+                <p className="font-medium mb-1">{post.text}</p>
                 {post.hashtags && post.hashtags.length > 0 && (
                   <p className="text-sm text-gray-600 mb-2">
                     Hashtagit: {post.hashtags.join(', ')}
@@ -95,10 +95,8 @@ function ContentCalendar() {
                     <input
                       type="datetime-local"
                       value={
-                        post.publishAt
-                          ? new Date(post.publishAt)
-                              .toISOString()
-                              .slice(0, 16)
+                        post.scheduled_at
+                          ? new Date(post.scheduled_at).toISOString().slice(0, 16)
                           : ''
                       }
                       onChange={(e) => handleScheduleChange(post.id, e.target.value)}
