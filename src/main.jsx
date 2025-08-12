@@ -2,6 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+// Initialize PostHog analytics. This import will automatically
+// set up PostHog using environment variables defined in Vercel or .env.
+import './analytics';
 
 // Clerk imports for authentication
 import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
