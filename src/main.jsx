@@ -6,6 +6,10 @@ import './index.css';
 // set up PostHog using environment variables defined in Vercel or .env.
 import './analytics';
 
+// Initialize Sentry for frontend error and performance monitoring. This import
+// will set up Sentry using VITE_SENTRY_DSN and other environment variables.
+import './sentry';
+
 // Clerk imports for authentication
 import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
 
