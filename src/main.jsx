@@ -1,3 +1,4 @@
+// Added comment to trigger redeploy and ensure latest code is used
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
