@@ -2,6 +2,10 @@ import React from 'react';
 // Import Clerk components and hooks to conditionally render
 // authentication controls and perform sign‑out actions.
 import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
+// Import the dedicated ProfilePage component.  This component
+// handles loading and saving of the user’s profile and replaces
+// the simple stub defined below.
+import ProfilePage from './ProfilePage.jsx';
 
 // Simple home page styled with Tailwind CSS to emulate a modern SaaS 
 // landing page.
@@ -59,60 +63,8 @@ const App = () => {
     </div>
   );
 
-  /**
-   * Profile page component allowing users to enter additional profile
-   * information used for generating posts. Currently this is a simple
-   * form with local state; integrate with backend as needed.
-   */
-  const ProfilePage = () => {
-    const [name, setName] = React.useState('');
-    const [bio, setBio] = React.useState('');
-    // Handle form submission; currently just logs to console.
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      console.log('Profile saved:', { name, bio });
-      alert('Profiilitiedot tallennettu (tämä on esimerkki).');
-    };
-    return (
-      <div className="max-w-2xl mx-auto py-12 px-4 text-gray-700">
-        <h2 className="text-3xl font-bold mb-6">Täydennä profiili</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-medium mb-1" htmlFor="name">
-              Nimi
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:border-indigo-400"
-              placeholder="Syötä nimesi"
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1" htmlFor="bio">
-              Kuvaus
-            </label>
-            <textarea
-              id="bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:border-indigo-400"
-              placeholder="Kerro itsestäsi lyhyesti"
-              rows={4}
-            />
-          </div>
-          <button
-            type="submit"
-            className="px-6 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
-          >
-            Tallenna
-          </button>
-        </form>
-      </div>
-    );
-  };
+  // We previously defined a stub ProfilePage component here, but the real
+  // implementation is imported above.  The stub has been removed.
 
   /**
    * Action page component showing controls to generate social media posts.
