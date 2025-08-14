@@ -3,8 +3,10 @@ import React from 'react';
 // authentication controls and perform sign‑out actions.
 import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
 
-// Simple home page styled with Tailwind CSS to emulate a modern SaaS landing page.
-// This component displays a header with navigation, a hero section and a footer.
+// Simple home page styled with Tailwind CSS to emulate a modern SaaS 
+// landing page.
+// This component displays a header with navigation, a hero section and a 
+// footer.
 const App = () => {
   const currentYear = new Date().getFullYear();
   const { signOut } = useClerk();
@@ -22,7 +24,8 @@ const App = () => {
       <div className="text-center text-white px-6">
         <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Gunvald</h1>
         <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-          Tekoälyavusteinen sosiaalisen median assistentti. Luo ja hallinnoi sisältöä nopeasti ja tehokkaasti.
+          Tekoälyavusteinen sosiaalisen median assistentti. Luo ja hallinnoi
+          sisältöä nopeasti ja tehokkaasti.
         </p>
         {/* Show CTA buttons for unauthenticated visitors */}
         <SignedOut>
@@ -119,8 +122,8 @@ const App = () => {
     <div className="flex flex-col items-center justify-center py-20 px-4 text-center text-gray-700">
       <h2 className="text-3xl font-bold mb-4">Generoi julkaisu</h2>
       <p className="mb-6 max-w-lg">
-        Täällä voit luoda uusia sosiaalisen median postauksia Gunvald‑avustajan avulla. Tämä toiminnallisuus
-        on vielä kehitteillä – pysy kuulolla!
+        Täällä voit luoda uusia sosiaalisen median postauksia Gunvald‑avustajan
+        avulla. Tämä toiminnallisuus on vielä kehitteillä – pysy kuulolla!
       </p>
       <button
         disabled
@@ -135,22 +138,74 @@ const App = () => {
   const InfoPage = () => (
     <div className="max-w-3xl mx-auto py-12 px-4 text-gray-700">
       <h2 className="text-3xl font-bold mb-4">Tietoja Gunvaldista</h2>
+      <p className="mb-4">
+        Gunvald on suomalainen startup, joka tarjoaa tekoälyavusteisen sosiaalisen
+        median assistentin pienille yrityksille. Palvelumme auttaa sinua
+        suunnittelemaan ja tuottamaan kuukauden somepostaukset automaattisesti
+        hyödyntämällä OpenAI:n GPT‑malleja tekstien ja kuvien luonnissa.
+      </p>
+      <p className="mb-4">
+        Näet generoidut postaukset kalenterinäkymässä, muokkaat niitä ja hyväksyt
+        ennen julkaisua. Gunvald integroituu suosituimpiin some‑kanaviin ja
+        tarjoaa analytiikkaa kampanjoidesi tehokkuuden seuraamiseen.
+      </p>
       <p>
-        Gunvald on tekoälyavusteinen sosiaalisen median assistentti, joka auttaa sinua luomaan ja hallinnoimaan
-        sisältöä nopeasti ja tehokkaasti. Tämä sivu on vielä työn alla, joten lisää tietoa tulossa pian.
+        Tavoitteenamme on helpottaa yrittäjien arkea ja antaa enemmän aikaa
+        keskittyä liiketoiminnan kehittämiseen. Kiitos, että olet mukana!
       </p>
     </div>
   );
+
   const ContactPage = () => (
     <div className="max-w-3xl mx-auto py-12 px-4 text-gray-700">
       <h2 className="text-3xl font-bold mb-4">Yhteystiedot</h2>
-      <p>Voit ottaa meihin yhteyttä sähköpostitse: <a href="mailto:info@gunvald.fi" className="text-indigo-700 hover:underline">info@gunvald.fi</a>.</p>
+      <p className="mb-2">
+        Voit olla meihin yhteydessä seuraavilla tavoilla:
+      </p>
+      <ul className="list-disc pl-6 space-y-1">
+        <li>
+          Sähköposti:{' '}
+          <a
+            href="mailto:info@gunvald.fi"
+            className="text-indigo-700 hover:underline"
+          >
+            info@gunvald.fi
+          </a>
+        </li>
+        <li>Puhelin: +358 50 123 4567</li>
+        <li>
+          Postiosoite: Gunvald Oy, Tehtaankatu 27–29, 00150 Helsinki, Suomi
+        </li>
+      </ul>
     </div>
   );
+
   const TermsPage = () => (
     <div className="max-w-3xl mx-auto py-12 px-4 text-gray-700">
       <h2 className="text-3xl font-bold mb-4">Käyttöehdot</h2>
-      <p>Nämä ovat Gunvaldin käyttöehdot. Tämä sivu on luonnos ja päivittyy pian täydellisillä ehdoilla.</p>
+      <p className="mb-2">
+        Käyttämällä Gunvald‑palvelua sitoudut noudattamaan seuraavia ehtoja:
+      </p>
+      <ol className="list-decimal pl-6 space-y-1">
+        <li>
+          Palvelu on tarkoitettu sosiaalisen median sisällön suunnitteluun ja
+          hallintaan. Et saa käyttää palvelua laittomaan tai sopimattomaan
+          tarkoitukseen.
+        </li>
+        <li>
+          Vastaat itse palvelun tuottaman sisällön julkaisemisesta ja varmistat,
+          että se noudattaa kunkin sosiaalisen median alustan sääntöjä.
+        </li>
+        <li>
+          Gunvald ei takaa, että tekoälyn luomat tekstit tai kuvat ovat
+          virheettömiä, eikä vastaa palvelun kautta luodun sisällön
+          mahdollisista seurauksista.
+        </li>
+        <li>
+          Pidätämme oikeuden päivittää näitä ehtoja tarvittaessa. Ajantasaiset
+          ehdot löytyvät aina tältä sivulta.
+        </li>
+      </ol>
     </div>
   );
 
@@ -186,7 +241,10 @@ const App = () => {
         {/* When the user is signed out, show auth links */}
         <SignedOut>
           <div className="space-x-4">
-            <a href="/sign-in" className="text-indigo-700 font-semibold hover:underline">
+            <a
+              href="/sign-in"
+              className="text-indigo-700 font-semibold hover:underline"
+            >
               Kirjaudu sisään
             </a>
             <a
@@ -200,10 +258,16 @@ const App = () => {
         {/* When the user is signed in, provide profile and action links plus sign‑out */}
         <SignedIn>
           <div className="space-x-4 flex items-center">
-            <a href="/profile" className="text-indigo-700 font-semibold hover:underline">
+            <a
+              href="/profile"
+              className="text-indigo-700 font-semibold hover:underline"
+            >
               Profiili
             </a>
-            <a href="/action" className="text-indigo-700 font-semibold hover:underline">
+            <a
+              href="/action"
+              className="text-indigo-700 font-semibold hover:underline"
+            >
               Postaukset
             </a>
             <button
@@ -222,9 +286,7 @@ const App = () => {
         </SignedIn>
       </header>
       {/* Render the selected page component */}
-      <main className="flex-grow">
-        {pageComponent}
-      </main>
+      <main className="flex-grow">{pageComponent}</main>
       {/* Footer with links to info, contact and terms */}
       <footer className="bg-gray-100 py-6 text-center text-gray-600">
         <p className="mb-2">&copy; {currentYear} Gunvald. Kaikki oikeudet pidätetään.</p>
