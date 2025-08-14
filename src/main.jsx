@@ -1,8 +1,6 @@
-// This file boots the React application and integrates Clerk for authentication.
-// It replaces the default sign‑in and sign‑up experience with Clerk-hosted
-// components that live on the same domain, ensuring users never leave
-// gunvald.fi during authentication. When no valid Clerk publishable key is
-// present, the app renders without Clerk to support development scenarios.
+// Entry point for the Gunvald frontend application.
+// This file bootstraps the React app and integrates Clerk for authentication.
+// It ensures that visitors stay on the gunvald.fi domain for sign‑in and sign‑up.
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -11,8 +9,6 @@ import './index.css';
 import './analytics';
 import './sentry';
 
-// Clerk imports for authentication. We import both SignIn and SignUp so
-// that the correct component can be shown based on the current path.
 import {
   ClerkProvider,
   SignedIn,
@@ -21,22 +17,18 @@ import {
   SignUp,
 } from '@clerk/clerk-react';
 
-// Retrieve Clerk publishable key from environment. This supports both Vite
-// (`VITE_CLERK_PUBLISHABLE_KEY`) and Next.js (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`)
-// naming conventions so the same code can run in different build tools.
+// Retrieve Clerk publishable key from environment variables.
 const clerkPubKey =
   import.meta.env?.VITE_CLERK_PUBLISHABLE_KEY ||
   import.meta.env?.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-// Simple helper to detect if the key is missing or obviously a placeholder.
+// Detect missing or placeholder keys for development.
 const isPlaceholderKey =
   !clerkPubKey ||
   /your-.*clerk.*publishable.*key/i.test(String(clerkPubKey).trim());
 
 const rootElement = document.getElementById('root');
 
-// If no valid publishable key is provided, skip Clerk entirely. This keeps
-// development environments running without external dependencies.
 if (isPlaceholderKey) {
   console.warn(
     '[clerk] Missing or placeholder publishable key detected; rendering app without Clerk.'
@@ -47,8 +39,6 @@ if (isPlaceholderKey) {
     </React.StrictMode>
   );
 } else {
-  // With a valid key, mount the application inside ClerkProvider. We use
-  // history.pushState for navigation to avoid full page reloads.
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <ClerkProvider
@@ -60,8 +50,7 @@ if (isPlaceholderKey) {
           <App />
         </SignedIn>
         <SignedOut>
-          {/* Display SignUp when the path is /sign-up; otherwise show SignIn.
-              After authentication completes, redirect to the home page. */}
+          {/* Show auth pages only on dedicated routes; otherwise display the home page */}
           {window.location.pathname === '/sign-up' ? (
             <SignUp
               routing="path"
@@ -69,13 +58,15 @@ if (isPlaceholderKey) {
               signInUrl="/sign-in"
               afterSignUpUrl="/"
             />
-          ) : (
+          ) : window.location.pathname === '/sign-in' ? (
             <SignIn
               routing="path"
               path="/sign-in"
               signUpUrl="/sign-up"
               afterSignInUrl="/"
             />
+          ) : (
+            <App />
           )}
         </SignedOut>
       </ClerkProvider>
