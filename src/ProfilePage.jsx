@@ -2,7 +2,7 @@
 // current user’s profile from the backend and allows them to edit and
 // save it.  It assumes that the logged-in user’s Clerk ID is passed
 // via the `clerkId` prop.  The component uses the Fetch API to
-// communicate with the `/api/profiles` endpoints defined on the
+// communicate with the `/profile` endpoint defined on the
 // server.
 
 import React, { useState, useEffect } from 'react';
@@ -10,12 +10,13 @@ import React, { useState, useEffect } from 'react';
 // determine the Clerk ID automatically, rather than expecting
 // it to be passed in as a prop.  The Clerk ID is needed to
 // identify the profile record in the backend.
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
 
 function ProfilePage() {
   // Retrieve the current user from Clerk.  If the user isn’t logged
   // in, we can’t fetch or save a profile.
   const { user } = useUser();
+  const { getToken } = useAuth();
   const clerkId = user?.id;
   const [profile, setProfile] = useState({
     company_name: '',
@@ -34,35 +35,52 @@ function ProfilePage() {
   // changes.  If no profile exists yet, we leave the state with
   // initial values.
   useEffect(() => {
-    if (!clerkId) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    fetch(`/api/profiles/${clerkId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Profile not found');
-        return res.json();
-      })
-      .then((data) => {
-        // Ensure arrays are proper types
-        setProfile({
-          company_name: data.company_name || '',
-          description: data.description || '',
-          target_audience: data.target_audience || '',
-          tone_of_voice: data.tone_of_voice || '',
-          social_channels: data.social_channels || [],
-          marketing_goals: data.marketing_goals || '',
-          content_themes: data.content_themes || '',
-          images: data.images || [],
-        });
+    const fetchProfile = async () => {
+      if (!clerkId) {
         setLoading(false);
-      })
-      .catch((err) => {
+        return;
+      }
+      setLoading(true);
+      try {
+        const token = await getToken();
+        const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+        const res = await fetch(`${apiBase}/profile`, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+        });
+        if (!res.ok) {
+          throw new Error('Profile not found');
+        }
+        const data = await res.json();
+        if (data) {
+          let team = {};
+          try {
+            team = JSON.parse(data.team_info || '{}');
+          } catch {
+            team = {};
+          }
+          setProfile({
+            // company_name is not stored in the legacy backend; leave blank
+            company_name: '',
+            description: data.company_description || '',
+            target_audience: data.target_audience || '',
+            tone_of_voice: team.tone_of_voice || '',
+            social_channels: team.social_channels || [],
+            marketing_goals: team.marketing_goals || '',
+            content_themes: data.content_preferences || '',
+            images: team.images || [],
+            id: data.id,
+          });
+        }
+        setLoading(false);
+      } catch (err) {
         console.warn('Profile not found or error:', err);
         setLoading(false);
-      });
-  }, [clerkId]);
+      }
+    };
+    fetchProfile();
+  }, [clerkId, getToken]);
 
   const handleChange = (field) => (e) => {
     const value = e.target.value;
@@ -104,25 +122,39 @@ function ProfilePage() {
       setError('Kirjaudu sisään tallentaaksesi profiilin');
       return;
     }
-    const method = profile.id ? 'PUT' : 'POST';
-    const url = profile.id ? `/api/profiles/${clerkId}` : '/api/profiles';
-    const body = {
-      clerk_id: clerkId,
-      ...profile,
-    };
-    fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    // Always POST to /profile; the backend will insert or update on conflict.
+    const saveProfile = async () => {
+      try {
+        const token = await getToken();
+        const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+        const teamInfoObj = {
+          tone_of_voice: profile.tone_of_voice,
+          social_channels: profile.social_channels,
+          marketing_goals: profile.marketing_goals,
+          images: profile.images,
+        };
+        const body = {
+          company_description: profile.description,
+          content_preferences: profile.content_themes,
+          team_info: JSON.stringify(teamInfoObj),
+          target_audience: profile.target_audience,
+        };
+        const res = await fetch(`${apiBase}/profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
         setProfile((prev) => ({ ...prev, id: data.id }));
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Failed to save profile:', err);
         setError('Profiilin tallennus epäonnistui');
-      });
+      }
+    };
+    saveProfile();
   };
 
   if (!user) {
