@@ -28,6 +28,8 @@ function ProfilePage() {
   // when saving.
   const [hasProfile, setHasProfile] = useState(false);
   const [error, setError] = useState(null);
+  // Success message for user feedback after saving profile
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Lataa profiili, jos käyttäjä on kirjautunut sisään.  Jos profiilia
   // ei löydy, jätä lomake tyhjäksi.  Käytä Clerk-tunnusta URL-parametrina.
@@ -109,7 +111,9 @@ function ProfilePage() {
 
   const handleSave = (e) => {
     e.preventDefault();
+    // Clear any previous errors or success messages
     setError(null);
+    setSuccessMessage('');
     if (!clerkId) {
       setError('Kirjaudu sisään tallentaaksesi profiilin');
       return;
@@ -150,6 +154,8 @@ function ProfilePage() {
         setProfile((prev) => ({ ...prev, ...data }));
         // Newly created profile now exists
         setHasProfile(true);
+        // Set success message on successful save
+        setSuccessMessage('Tiedot tallennettu onnistuneesti');
       } catch (err) {
         console.error('Failed to save profile:', err);
         setError('Profiilin tallennus epäonnistui');
@@ -167,6 +173,7 @@ function ProfilePage() {
     <form onSubmit={handleSave} className="max-w-2xl mx-auto p-4 space-y-4">
       <h1 className="text-2xl font-bold">Profiili</h1>
       {error && <p className="text-red-600">{error}</p>}
+      {successMessage && <p className="text-green-600">{successMessage}</p>}
       <div>
         <label className="block mb-1 font-medium" htmlFor="company_name">
           Yrityksen nimi
