@@ -33,7 +33,7 @@ const ActionPage = () => {
     try {
       const token = await getToken();
       // Construct the base URL from an environment variable when available.
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.gunvald.fi';
       const res = await fetch(`${baseUrl}/api/generate`, {
         method: 'POST',
         headers: {
@@ -78,7 +78,7 @@ const ActionPage = () => {
     try {
       const prompts = posts.map((p) => p.imagePrompt || p.text.slice(0, 50));
       const token = await getToken();
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.gunvald.fi';
       const res = await fetch(`${baseUrl}/api/generate-images`, {
         method: 'POST',
         headers: {
