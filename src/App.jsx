@@ -6,6 +6,8 @@ import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
 // handles loading and saving of the user’s profile and replaces
 // the simple stub defined below.
 import ProfilePage from './ProfilePage.jsx';
+// Import the ActionPage component which handles AI post generation.
+import ActionPage from './ActionPage.jsx';
 
 // Simple home page styled with Tailwind CSS to emulate a modern SaaS 
 // landing page.
@@ -66,25 +68,8 @@ const App = () => {
   // We previously defined a stub ProfilePage component here, but the real
   // implementation is imported above.  The stub has been removed.
 
-  /**
-   * Action page component showing controls to generate social media posts.
-   * This is currently a placeholder; integrate actual post generation later.
-   */
-  const ActionPage = () => (
-    <div className="flex flex-col items-center justify-center py-20 px-4 text-center text-gray-700">
-      <h2 className="text-3xl font-bold mb-4">Generoi julkaisu</h2>
-      <p className="mb-6 max-w-lg">
-        Täällä voit luoda uusia sosiaalisen median postauksia Gunvald‑avustajan
-        avulla. Tämä toiminnallisuus on vielä kehitteillä – pysy kuulolla!
-      </p>
-      <button
-        disabled
-        className="px-6 py-3 bg-indigo-300 text-white rounded cursor-not-allowed"
-      >
-        Generoi postaus (tulossa pian)
-      </button>
-    </div>
-  );
+  // Note: the ActionPage component is imported at the top of this file.  It
+  // provides the UI and logic for generating AI-driven social media posts.
 
   /** Static pages for info, contact and terms of use */
   const InfoPage = () => (
