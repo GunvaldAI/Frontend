@@ -18,6 +18,8 @@ const ActionPage = () => {
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(null);
 
   /**
    * Calls the backend /api/generate endpoint to create a list of posts.
@@ -62,6 +64,48 @@ const ActionPage = () => {
     }
   };
 
+  /**
+   * Calls the backend /api/generate-images endpoint to generate images
+   * for the current list of posts.  It uses each post's imagePrompt if
+   * available; otherwise falls back to the first 50 characters of the
+   * post text.  The resulting image URLs are stored on the posts in
+   * the `imageUrl` property.
+   */
+  const handleGenerateImages = async () => {
+    if (!posts || posts.length === 0) return;
+    setImageLoading(true);
+    setImageError(null);
+    try {
+      const prompts = posts.map((p) => p.imagePrompt || p.text.slice(0, 50));
+      const token = await getToken();
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const res = await fetch(`${baseUrl}/api/generate-images`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ prompts }),
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'Failed to generate images');
+      }
+      const images = await res.json();
+      // Attach image URLs to posts
+      const updated = [...posts];
+      images.forEach((url, idx) => {
+        updated[idx].imageUrl = url;
+      });
+      setPosts(updated);
+    } catch (err) {
+      console.error('Image generation error', err);
+      setImageError(err.message || 'Tuntematon virhe');
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 text-gray-700">
       <h2 className="text-3xl font-bold mb-4 text-center">Generoi postauksia</h2>
@@ -93,14 +137,15 @@ const ActionPage = () => {
         </div>
       )}
       {posts.length > 0 && (
-        <div className="space-y-6">
-          {posts.map((post, idx) => (
-            <div
-              key={idx}
-              className={`p-4 border rounded shadow-sm bg-white ${
-                post.status === 'accepted' ? 'border-green-400' : ''
-              } ${post.status === 'rejected' ? 'opacity-50' : ''}`}
-            >
+        <>
+          <div className="space-y-6">
+            {posts.map((post, idx) => (
+              <div
+                key={idx}
+                className={`p-4 border rounded shadow-sm bg-white ${
+                  post.status === 'accepted' ? 'border-green-400' : ''
+                } ${post.status === 'rejected' ? 'opacity-50' : ''}`}
+              >
               {/* Post header */}
               <h3 className="font-semibold mb-2">Postaus {idx + 1}</h3>
               {/* Editing mode */}
@@ -165,6 +210,15 @@ const ActionPage = () => {
                       Kuvaprompti: {post.imagePrompt}
                     </p>
                   )}
+                  {post.imageUrl && (
+                    <div className="mt-2">
+                      <img
+                        src={post.imageUrl}
+                        alt="Generoitu kuva"
+                        className="w-full h-auto rounded"
+                      />
+                    </div>
+                  )}
                   {/* Action buttons if post is pending */}
                   {post.status === 'pending' && (
                     <div className="flex space-x-2 mt-3">
@@ -215,7 +269,26 @@ const ActionPage = () => {
               )}
             </div>
           ))}
-        </div>
+          </div>
+          {/* Display image generation errors */}
+          {imageError && (
+            <div className="text-red-600 font-semibold text-center mt-4">
+              {imageError}
+            </div>
+          )}
+          {/* Button to generate images for all posts */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={handleGenerateImages}
+              disabled={imageLoading}
+              className={`px-6 py-2 rounded text-white bg-purple-600 hover:bg-purple-700 transition ${
+                imageLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {imageLoading ? 'Generoi kuvia...' : 'Generoi kuvat'}
+            </button>
+          </div>
+        </>
       )}
       {posts.length === 0 && !loading && !error && (
         <p className="text-center text-gray-600">Ei vielä generoitua sisältöä.</p>
