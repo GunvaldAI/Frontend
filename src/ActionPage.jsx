@@ -14,6 +14,8 @@ const ActionPage = () => {
   const { getToken } = useAuth();
   const [count, setCount] = useState(5);
   const [posts, setPosts] = useState([]);
+  // Track number of accepted posts (for potential scheduling)
+  const [acceptedCount, setAcceptedCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -43,7 +45,15 @@ const ActionPage = () => {
         throw new Error(text || 'Failed to generate posts');
       }
       const data = await res.json();
-      setPosts(Array.isArray(data) ? data : []);
+      // Initialize posts with additional metadata for UI interactions
+      const postsWithMeta = Array.isArray(data)
+        ? data.map((p) => ({
+            ...p,
+            status: 'pending', // possible values: pending, accepted, rejected
+            editing: false,
+          }))
+        : [];
+      setPosts(postsWithMeta);
     } catch (err) {
       console.error('Generate error', err);
       setError(err.message || 'Tuntematon virhe');
@@ -87,19 +97,121 @@ const ActionPage = () => {
           {posts.map((post, idx) => (
             <div
               key={idx}
-              className="p-4 border rounded shadow-sm bg-white"
+              className={`p-4 border rounded shadow-sm bg-white ${
+                post.status === 'accepted' ? 'border-green-400' : ''
+              } ${post.status === 'rejected' ? 'opacity-50' : ''}`}
             >
+              {/* Post header */}
               <h3 className="font-semibold mb-2">Postaus {idx + 1}</h3>
-              <p className="mb-2 whitespace-pre-line">{post.text}</p>
-              {post.hashtags && post.hashtags.length > 0 && (
-                <p className="mb-2 text-sm text-gray-600">
-                  Hashtagit: {post.hashtags.join(' ')}
-                </p>
-              )}
-              {post.imagePrompt && (
-                <p className="text-sm text-gray-600">
-                  Kuvaprompti: {post.imagePrompt}
-                </p>
+              {/* Editing mode */}
+              {post.editing ? (
+                <div className="space-y-2">
+                  <textarea
+                    className="w-full border p-2 rounded"
+                    rows={4}
+                    value={post.text}
+                    onChange={(e) => {
+                      const newPosts = [...posts];
+                      newPosts[idx].text = e.target.value;
+                      setPosts(newPosts);
+                    }}
+                  />
+                  <input
+                    type="text"
+                    className="w-full border p-2 rounded"
+                    value={post.hashtags ? post.hashtags.join(' ') : ''}
+                    onChange={(e) => {
+                      const newPosts = [...posts];
+                      newPosts[idx].hashtags = e.target.value
+                        .split(' ')
+                        .filter(Boolean);
+                      setPosts(newPosts);
+                    }}
+                    placeholder="Hashtagit eroteltuna välilyönneillä"
+                  />
+                  <div className="flex space-x-2">
+                    <button
+                      className="px-4 py-2 bg-blue-500 text-white rounded"
+                      onClick={() => {
+                        const newPosts = [...posts];
+                        newPosts[idx].editing = false;
+                        setPosts(newPosts);
+                      }}
+                    >
+                      Tallenna
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-gray-400 text-white rounded"
+                      onClick={() => {
+                        const newPosts = [...posts];
+                        newPosts[idx].editing = false;
+                        setPosts(newPosts);
+                      }}
+                    >
+                      Peruuta
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="mb-2 whitespace-pre-line">{post.text}</p>
+                  {post.hashtags && post.hashtags.length > 0 && (
+                    <p className="mb-2 text-sm text-gray-600">
+                      Hashtagit: {post.hashtags.join(' ')}
+                    </p>
+                  )}
+                  {post.imagePrompt && (
+                    <p className="text-sm text-gray-600">
+                      Kuvaprompti: {post.imagePrompt}
+                    </p>
+                  )}
+                  {/* Action buttons if post is pending */}
+                  {post.status === 'pending' && (
+                    <div className="flex space-x-2 mt-3">
+                      <button
+                        className="px-3 py-1 bg-green-500 text-white rounded"
+                        onClick={() => {
+                          const newPosts = [...posts];
+                          newPosts[idx].status = 'accepted';
+                          setPosts(newPosts);
+                          setAcceptedCount((c) => c + 1);
+                        }}
+                      >
+                        Hyväksy
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-yellow-500 text-white rounded"
+                        onClick={() => {
+                          const newPosts = [...posts];
+                          newPosts[idx].editing = true;
+                          setPosts(newPosts);
+                        }}
+                      >
+                        Muokkaa
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-500 text-white rounded"
+                        onClick={() => {
+                          const newPosts = [...posts];
+                          newPosts[idx].status = 'rejected';
+                          setPosts(newPosts);
+                        }}
+                      >
+                        Hylkää
+                      </button>
+                    </div>
+                  )}
+                  {post.status === 'accepted' && (
+                    <p className="mt-2 text-green-600 font-semibold">
+                      Hyväksytty
+                    </p>
+                  )}
+                  {post.status === 'rejected' && (
+                    <p className="mt-2 text-red-600 font-semibold">
+                      Hylätty
+                    </p>
+                  )}
+                </>
               )}
             </div>
           ))}
