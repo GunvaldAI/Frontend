@@ -132,6 +132,12 @@ function ProfilePage() {
       // Append newly uploaded image URLs to existing images
       setProfile((prev) => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
       setError(null);
+      // Reset the file input so the same file can be selected again or additional
+      // files can be chosen without the browser ignoring duplicate selections.
+      // Without resetting, selecting the same file twice does not trigger onChange.
+      if (e.target) {
+        e.target.value = '';
+      }
     } catch (err) {
       console.error(err);
       setError('Kuvien lataus epäonnistui');
@@ -327,7 +333,8 @@ function ProfilePage() {
           Lisää 0–{MAX_IMAGES} referenssikuvaa
         </label>
         <p className="text-sm text-gray-600 italic mb-1">
-          AI käyttää näitä kuvia visuaalisina referensseinä, kun se generoi uusia kuvia.
+          AI käyttää näitä kuvia visuaalisina referensseinä, kun se generoi uusia kuvia. 
+          Voit valita useita kuvia kerralla pitämällä Ctrl (tai Cmd Macissä) tai Shift-näppäintä valinnan aikana.
         </p>
         <input
           id="images"
