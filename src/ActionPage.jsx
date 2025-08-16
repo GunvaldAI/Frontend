@@ -207,6 +207,39 @@ const ActionPage = () => {
     }
   };
 
+  /**
+   * Handles manual image upload for a single post.  Reads the selected
+   * file as a base64 data URL and sets it as the post's imageUrl.
+   * Also stores the File object on the post as `imageFile` for possible
+   * later upload to the server.  Clears any existing error messages.
+   *
+   * @param {number} idx Index of the post within the posts array
+   */
+  const handleUploadImageForPost = (idx) => (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result;
+      setPosts((prev) => {
+        const updated = [...prev];
+        if (idx >= 0 && idx < updated.length) {
+          updated[idx] = {
+            ...updated[idx],
+            imageUrl: dataUrl,
+            imageFile: file,
+            imageGenerating: false,
+          };
+        }
+        return updated;
+      });
+    };
+    reader.onerror = () => {
+      setImageError('Kuvan lataaminen epäonnistui');
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 text-gray-700">
       <h2 className="text-3xl font-bold mb-4 text-center">Generoi postauksia</h2>
@@ -309,15 +342,29 @@ const ActionPage = () => {
                         Kuvaprompti: {post.imagePrompt}
                       </p>
                     )}
-                    {post.imageUrl && (
-                      <div className="mt-2">
+                    {/* Display an existing image or a placeholder when none is available */}
+                    <div className="mt-2">
+                      {post.imageUrl ? (
                         <img
                           src={post.imageUrl}
-                          alt="Generoitu kuva"
+                          alt="Postauksen kuva"
                           className="w-full h-auto rounded"
                         />
-                      </div>
-                    )}
+                      ) : (
+                        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 border rounded">
+                          Ei kuvaa
+                        </div>
+                      )}
+                    </div>
+                    {/* Allow the user to upload a custom image for this post */}
+                    <div className="mt-2">
+                      <label className="block text-sm text-gray-600">Lataa kuva:</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadImageForPost(idx)}
+                      />
+                    </div>
                     {/* Action buttons if post is pending */}
                     {post.status === 'pending' && (
                       <div className="flex flex-wrap space-x-2 mt-3">
