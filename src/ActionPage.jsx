@@ -48,15 +48,39 @@ const ActionPage = () => {
         const text = await res.text();
         throw new Error(text || 'Failed to generate posts');
       }
-      const data = await res.json();
+      // Read the response as text so we can handle both raw arrays and
+      // stringified JSON with markdown fences (```json ... ```). This is
+      // necessary because the AI sometimes returns JSON inside code fences.
+      const txt = await res.text();
+      let parsed;
+      try {
+        let cleaned = txt.trim();
+        // If the response starts with a code fence, strip it along with any
+        // optional "json" language identifier and the closing fence.
+        if (cleaned.startsWith('```')) {
+          cleaned = cleaned
+            .replace(/^```(?:json)?\s*/i, '')
+            .replace(/```$/i, '')
+            .trim();
+        }
+        parsed = JSON.parse(cleaned);
+      } catch (e) {
+        parsed = null;
+      }
+      // Determine the array of posts from the parsed data.  Accept either
+      // an array directly or an object with a `posts` property.
+      let postsArray = [];
+      if (Array.isArray(parsed)) {
+        postsArray = parsed;
+      } else if (parsed && Array.isArray(parsed.posts)) {
+        postsArray = parsed.posts;
+      }
       // Initialize posts with additional metadata for UI interactions
-      const postsWithMeta = Array.isArray(data)
-        ? data.map((p) => ({
-            ...p,
-            status: 'pending', // possible values: pending, accepted, rejected
-            editing: false,
-          }))
-        : [];
+      const postsWithMeta = postsArray.map((p) => ({
+        ...p,
+        status: 'pending', // possible values: pending, accepted, rejected
+        editing: false,
+      }));
       setPosts(postsWithMeta);
     } catch (err) {
       console.error('Generate error', err);
