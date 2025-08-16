@@ -84,30 +84,58 @@ function ProfilePage() {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Handle image selection and convert to base64. Allow 0–MAX_IMAGES images.
-  const handleImagesChange = (e) => {
+  /**
+   * Handle image selection. When the user chooses files, each file is first
+   * converted to a base64 data URL and then uploaded to our backend via
+   * the `/api/upload-image` endpoint. The backend will forward the image to
+   * Cloudinary (or another storage provider) and return a URL. We append
+   * these URLs to the existing `profile.images` array. If too many files
+   * are selected, we show an error. If any upload fails, we show a generic
+   * error message.
+   */
+  const handleImagesChange = async (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > MAX_IMAGES) {
-      setError(`Valitse enintään ${MAX_IMAGES} kuvaa.`);
+    // Ensure total image count does not exceed MAX_IMAGES
+    if (files.length + profile.images.length > MAX_IMAGES) {
+      setError(`Valitse enintään ${MAX_IMAGES} kuvaa (sisältäen jo tallennetut).`);
       return;
     }
-    Promise.all(
-      files.map((file) => {
-        return new Promise((resolve, reject) => {
+    try {
+      const token = await getToken();
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const uploadedUrls = [];
+      for (const file of files) {
+        // Convert file to base64
+        const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result);
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
-      }),
-    )
-      .then((base64Images) => {
-        setProfile((prev) => ({ ...prev, images: base64Images }));
-        setError(null);
-      })
-      .catch(() => {
-        setError('Kuvien käsittely epäonnistui');
-      });
+        // Upload to our backend. The backend handles forwarding to Cloudinary
+        const res = await fetch(`${apiBase}/api/upload-image`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          body: JSON.stringify({ image: base64 }),
+        });
+        if (!res.ok) {
+          throw new Error('Image upload failed');
+        }
+        const data = await res.json();
+        if (data && data.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+      // Append newly uploaded image URLs to existing images
+      setProfile((prev) => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError('Kuvien lataus epäonnistui');
+    }
   };
 
   const handleSave = (e) => {
