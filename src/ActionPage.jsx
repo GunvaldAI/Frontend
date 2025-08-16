@@ -7,8 +7,10 @@ import { useAuth } from '@clerk/clerk-react';
  * This component allows the logged in user to generate a series of draft
  * social media posts using the backend AI generation endpoint.  The user
  * can select how many posts to generate (1–10), trigger the generation,
- * and view the resulting posts.  Each generated post includes text,
- * hashtags and an optional image prompt returned by the API.
+ * and view the resulting posts.  Each generated post is rendered as its
+ * own card with controls to accept, reject, edit and generate an image
+ * individually.  A global image generation button still exists for
+ * convenience if the user wishes to generate images for all posts at once.
  */
 const ActionPage = () => {
   const { getToken } = useAuth();
@@ -106,6 +108,48 @@ const ActionPage = () => {
     }
   };
 
+  /**
+   * Generates an image for a single post.  It uses the post's imagePrompt
+   * if provided, otherwise falls back to the first 50 characters of the
+   * post text.  The generated image URL is stored on that post only.
+   *
+   * @param {number} idx Index of the post within the posts array
+   */
+  const handleGenerateImage = async (idx) => {
+    if (!posts || idx < 0 || idx >= posts.length) return;
+    setImageLoading(true);
+    setImageError(null);
+    try {
+      const prompt = posts[idx].imagePrompt || posts[idx].text.slice(0, 50);
+      const token = await getToken();
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.gunvald.fi';
+      const res = await fetch(`${baseUrl}/api/generate-images`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ prompts: [prompt] }),
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'Failed to generate image');
+      }
+      const images = await res.json();
+      const url = images && images.length > 0 ? images[0] : null;
+      if (url) {
+        const newPosts = [...posts];
+        newPosts[idx].imageUrl = url;
+        setPosts(newPosts);
+      }
+    } catch (err) {
+      console.error('Single image generation error', err);
+      setImageError(err.message || 'Tuntematon virhe');
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 text-gray-700">
       <h2 className="text-3xl font-bold mb-4 text-center">Generoi postauksia</h2>
@@ -132,9 +176,7 @@ const ActionPage = () => {
         </button>
       </div>
       {error && (
-        <div className="mb-4 text-red-600 font-semibold text-center">
-          {error}
-        </div>
+        <div className="mb-4 text-red-600 font-semibold text-center">{error}</div>
       )}
       {posts.length > 0 && (
         <>
@@ -146,129 +188,135 @@ const ActionPage = () => {
                   post.status === 'accepted' ? 'border-green-400' : ''
                 } ${post.status === 'rejected' ? 'opacity-50' : ''}`}
               >
-              {/* Post header */}
-              <h3 className="font-semibold mb-2">Postaus {idx + 1}</h3>
-              {/* Editing mode */}
-              {post.editing ? (
-                <div className="space-y-2">
-                  <textarea
-                    className="w-full border p-2 rounded"
-                    rows={4}
-                    value={post.text}
-                    onChange={(e) => {
-                      const newPosts = [...posts];
-                      newPosts[idx].text = e.target.value;
-                      setPosts(newPosts);
-                    }}
-                  />
-                  <input
-                    type="text"
-                    className="w-full border p-2 rounded"
-                    value={post.hashtags ? post.hashtags.join(' ') : ''}
-                    onChange={(e) => {
-                      const newPosts = [...posts];
-                      newPosts[idx].hashtags = e.target.value
-                        .split(' ')
-                        .filter(Boolean);
-                      setPosts(newPosts);
-                    }}
-                    placeholder="Hashtagit eroteltuna välilyönneillä"
-                  />
-                  <div className="flex space-x-2">
-                    <button
-                      className="px-4 py-2 bg-blue-500 text-white rounded"
-                      onClick={() => {
+                {/* Post header */}
+                <h3 className="font-semibold mb-2">Postaus {idx + 1}</h3>
+                {/* Editing mode */}
+                {post.editing ? (
+                  <div className="space-y-2">
+                    <textarea
+                      className="w-full border p-2 rounded"
+                      rows={4}
+                      value={post.text}
+                      onChange={(e) => {
                         const newPosts = [...posts];
-                        newPosts[idx].editing = false;
+                        newPosts[idx].text = e.target.value;
                         setPosts(newPosts);
                       }}
-                    >
-                      Tallenna
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-gray-400 text-white rounded"
-                      onClick={() => {
+                    />
+                    <input
+                      type="text"
+                      className="w-full border p-2 rounded"
+                      value={post.hashtags ? post.hashtags.join(' ') : ''}
+                      onChange={(e) => {
                         const newPosts = [...posts];
-                        newPosts[idx].editing = false;
+                        newPosts[idx].hashtags = e.target.value
+                          .split(' ')
+                          .filter(Boolean);
                         setPosts(newPosts);
                       }}
-                    >
-                      Peruuta
-                    </button>
+                      placeholder="Hashtagit eroteltuna välilyönneillä"
+                    />
+                    <div className="flex space-x-2">
+                      <button
+                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                        onClick={() => {
+                          const newPosts = [...posts];
+                          newPosts[idx].editing = false;
+                          setPosts(newPosts);
+                        }}
+                      >
+                        Tallenna
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-gray-400 text-white rounded"
+                        onClick={() => {
+                          const newPosts = [...posts];
+                          newPosts[idx].editing = false;
+                          setPosts(newPosts);
+                        }}
+                      >
+                        Peruuta
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  <p className="mb-2 whitespace-pre-line">{post.text}</p>
-                  {post.hashtags && post.hashtags.length > 0 && (
-                    <p className="mb-2 text-sm text-gray-600">
-                      Hashtagit: {post.hashtags.join(' ')}
-                    </p>
-                  )}
-                  {post.imagePrompt && (
-                    <p className="text-sm text-gray-600">
-                      Kuvaprompti: {post.imagePrompt}
-                    </p>
-                  )}
-                  {post.imageUrl && (
-                    <div className="mt-2">
-                      <img
-                        src={post.imageUrl}
-                        alt="Generoitu kuva"
-                        className="w-full h-auto rounded"
-                      />
-                    </div>
-                  )}
-                  {/* Action buttons if post is pending */}
-                  {post.status === 'pending' && (
-                    <div className="flex space-x-2 mt-3">
-                      <button
-                        className="px-3 py-1 bg-green-500 text-white rounded"
-                        onClick={() => {
-                          const newPosts = [...posts];
-                          newPosts[idx].status = 'accepted';
-                          setPosts(newPosts);
-                          setAcceptedCount((c) => c + 1);
-                        }}
-                      >
-                        Hyväksy
-                      </button>
-                      <button
-                        className="px-3 py-1 bg-yellow-500 text-white rounded"
-                        onClick={() => {
-                          const newPosts = [...posts];
-                          newPosts[idx].editing = true;
-                          setPosts(newPosts);
-                        }}
-                      >
-                        Muokkaa
-                      </button>
-                      <button
-                        className="px-3 py-1 bg-red-500 text-white rounded"
-                        onClick={() => {
-                          const newPosts = [...posts];
-                          newPosts[idx].status = 'rejected';
-                          setPosts(newPosts);
-                        }}
-                      >
-                        Hylkää
-                      </button>
-                    </div>
-                  )}
-                  {post.status === 'accepted' && (
-                    <p className="mt-2 text-green-600 font-semibold">
-                      Hyväksytty
-                    </p>
-                  )}
-                  {post.status === 'rejected' && (
-                    <p className="mt-2 text-red-600 font-semibold">
-                      Hylätty
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <>
+                    <p className="mb-2 whitespace-pre-line">{post.text}</p>
+                    {post.hashtags && post.hashtags.length > 0 && (
+                      <p className="mb-2 text-sm text-gray-600">
+                        Hashtagit: {post.hashtags.join(' ')}
+                      </p>
+                    )}
+                    {post.imagePrompt && (
+                      <p className="text-sm text-gray-600">
+                        Kuvaprompti: {post.imagePrompt}
+                      </p>
+                    )}
+                    {post.imageUrl && (
+                      <div className="mt-2">
+                        <img
+                          src={post.imageUrl}
+                          alt="Generoitu kuva"
+                          className="w-full h-auto rounded"
+                        />
+                      </div>
+                    )}
+                    {/* Action buttons if post is pending */}
+                    {post.status === 'pending' && (
+                      <div className="flex flex-wrap space-x-2 mt-3">
+                        <button
+                          className="px-3 py-1 bg-green-500 text-white rounded"
+                          onClick={() => {
+                            const newPosts = [...posts];
+                            newPosts[idx].status = 'accepted';
+                            setPosts(newPosts);
+                            setAcceptedCount((c) => c + 1);
+                          }}
+                        >
+                          Hyväksy
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-yellow-500 text-white rounded"
+                          onClick={() => {
+                            const newPosts = [...posts];
+                            newPosts[idx].editing = true;
+                            setPosts(newPosts);
+                          }}
+                        >
+                          Muokkaa
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-red-500 text-white rounded"
+                          onClick={() => {
+                            const newPosts = [...posts];
+                            newPosts[idx].status = 'rejected';
+                            setPosts(newPosts);
+                          }}
+                        >
+                          Hylkää
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-purple-500 text-white rounded"
+                          onClick={() => handleGenerateImage(idx)}
+                        >
+                          Generoi kuva
+                        </button>
+                      </div>
+                    )}
+                    {post.status === 'accepted' && (
+                      <p className="mt-2 text-green-600 font-semibold">
+                        Hyväksytty
+                      </p>
+                    )}
+                    {post.status === 'rejected' && (
+                      <p className="mt-2 text-red-600 font-semibold">
+                        Hylätty
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
           </div>
           {/* Display image generation errors */}
           {imageError && (
