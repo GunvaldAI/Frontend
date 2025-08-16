@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 // Import Clerk components and hooks to conditionally render
 // authentication controls and perform sign‑out actions.
 import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
@@ -15,7 +15,9 @@ import ActionPage from './ActionPage.jsx';
 
 const App = () => {
   const currentYear = new Date().getFullYear();
-  const { signOut } = useClerk();
+      const { signOut } = useClerk();
+      // Track state of mobile navigation menu so we can show a dropdown on small screens
+      const [menuOpen, setMenuOpen] = useState(false);
   // Determine the current path so we can render different pages without
   // adding a router dependency. This makes it easy to extend the SPA
   // with additional pages such as profile, action, info, contact and terms.
@@ -32,6 +34,22 @@ const App = () => {
     </div>
   );
 
+      // Simple card stack to simulate 3D layered cards like those shown on financial product pages.
+      // Each card is slightly rotated and offset to create depth.  The front card contains a
+      // placeholder label.  You can customise colours and text to suit Gunvald's brand.
+      const CardStack = () => (
+        <div className="relative w-40 h-28 md:w-64 md:h-40">
+          {/* Back card */}
+          <div className="absolute top-3 left-2 w-full h-full rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg transform rotate-[-6deg]"></div>
+          {/* Middle card */}
+          <div className="absolute top-1 left-1 w-full h-full rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg transform rotate-[-3deg]"></div>
+          {/* Front card */}
+          <div className="absolute inset-0 w-full h-full rounded-xl bg-white shadow-xl flex items-center justify-center text-gray-800 font-semibold">
+            AI‑sisällöt
+          </div>
+        </div>
+      );
+
   /**
    * Landing page component.  Displays the hero section with call‑to‑action and
    * animation, followed by informative sections describing the service,
@@ -42,48 +60,52 @@ const App = () => {
   const HomePage = () => (
     <div className="flex flex-col">
       {/* Hero section */}
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-20">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center">
-          {/* Left column: title, tagline and CTAs */}
-          <div className="flex-1 text-center md:text-left text-white">
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Gunvald</h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-xl mx-auto md:mx-0">
-              Tekoälyavusteinen sosiaalisen median assistentti. Luo ja hallinnoi sisältöä
-              nopeasti ja tehokkaasti.
-            </p>
-            <SignedOut>
-              <div className="space-x-4 mb-8">
-                <a
-                  href="/sign-up"
-                  className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
-                >
-                  Aloita nyt
-                </a>
-                <a
-                  href="/sign-in"
-                  className="border border-white text-white font-semibold py-3 px-8 rounded-full hover:bg-white hover:text-gray-800 transition"
-                >
-                  Kirjaudu sisään
-                </a>
+          <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 pt-24 pb-32">
+            {/* Rotating gradient blob behind the card stack */}
+            <div
+              className="absolute -top-20 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-indigo-500 opacity-60 blur-3xl animate-spin"
+              style={{ animationDuration: '20s' }}
+            ></div>
+            <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center">
+              {/* Left column: title, tagline and CTAs */}
+              <div className="flex-1 text-center md:text-left text-white">
+                <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Gunvald</h1>
+                <p className="text-xl md:text-2xl mb-8 max-w-xl mx-auto md:mx-0">
+                  Tekoälyavusteinen sosiaalisen median assistentti. Luo, ajasta ja analysoi sisällöt vaivattomasti.
+                </p>
+                <SignedOut>
+                  <div className="space-x-4 mb-8">
+                    <a
+                      href="/sign-up"
+                      className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
+                    >
+                      Aloita nyt
+                    </a>
+                    <a
+                      href="/sign-in"
+                      className="border border-white text-white font-semibold py-3 px-8 rounded-full hover:bg-white hover:text-gray-800 transition"
+                    >
+                      Kirjaudu sisään
+                    </a>
+                  </div>
+                </SignedOut>
+                <SignedIn>
+                  <div className="mb-8">
+                    <a
+                      href="/action"
+                      className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
+                    >
+                      Luo postaus
+                    </a>
+                  </div>
+                </SignedIn>
               </div>
-            </SignedOut>
-            <SignedIn>
-              <div className="mb-8">
-                <a
-                  href="/action"
-                  className="bg-white text-gray-800 font-semibold py-3 px-8 rounded-full shadow hover:bg-gray-200 transition"
-                >
-                  Luo postaus
-                </a>
+              {/* Right column: 3D card stack */}
+              <div className="flex-1 flex justify-center mt-12 md:mt-0">
+                <CardStack />
               </div>
-            </SignedIn>
-          </div>
-          {/* Right column: animation */}
-          <div className="flex-1 flex justify-center mt-12 md:mt-0">
-            <HeroAnimation />
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
       {/* Introduction section */}
       <section className="bg-white py-12 px-6">
         <div className="max-w-6xl mx-auto">
@@ -245,49 +267,129 @@ const App = () => {
       pageComponent = <HomePage />;
   }
 
-  return (
-    <div className="min-h-screen flex flex-col font-sans">
-      {/* Header with logo and navigation */}
-      <header className="flex justify-between items-center px-8 py-4 bg-white shadow">
-        <div className="text-2xl font-bold text-indigo-700">
-          <a href="/">Gunvald</a>
-        </div>
-        <SignedOut>
-          <div className="space-x-4">
-            <a href="/sign-in" className="text-indigo-700 font-semibold hover:underline">
-              Kirjaudu sisään
-            </a>
-            <a
-              href="/sign-up"
-              className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
-            >
-              Rekisteröidy
-            </a>
-          </div>
-        </SignedOut>
-        <SignedIn>
-          <div className="space-x-4 flex items-center">
-            <a href="/profile" className="text-indigo-700 font-semibold hover:underline">
-              Profiili
-            </a>
-            <a href="/action" className="text-indigo-700 font-semibold hover:underline">
-              Postaukset
-            </a>
-            <button
-              onClick={async () => {
-                try {
-                  await signOut();
-                } finally {
-                  window.location.href = '/';
-                }
-              }}
-              className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
-            >
-              Kirjaudu ulos
-            </button>
-          </div>
-        </SignedIn>
-      </header>
+       return (
+         <div className="min-h-screen flex flex-col font-sans">
+           {/* Header with responsive navigation */}
+           <header className="relative flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
+             {/* Logo */}
+             <div className="text-2xl font-bold text-indigo-700">
+               <a href="/">Gunvald</a>
+             </div>
+             {/* Desktop navigation */}
+             <nav className="hidden md:flex items-center space-x-4">
+               <SignedOut>
+                 <a href="/sign-in" className="text-indigo-700 font-semibold hover:underline">
+                   Kirjaudu sisään
+                 </a>
+                 <a
+                   href="/sign-up"
+                   className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
+                 >
+                   Rekisteröidy
+                 </a>
+               </SignedOut>
+               <SignedIn>
+                 <a href="/profile" className="text-indigo-700 font-semibold hover:underline">
+                   Profiili
+                 </a>
+                 <a href="/action" className="text-indigo-700 font-semibold hover:underline">
+                   Postaukset
+                 </a>
+                 <button
+                   onClick={async () => {
+                     try {
+                       await signOut();
+                     } finally {
+                       window.location.href = '/';
+                     }
+                   }}
+                   className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
+                 >
+                   Kirjaudu ulos
+                 </button>
+               </SignedIn>
+             </nav>
+             {/* Mobile menu toggle */}
+             <button
+               className="md:hidden text-indigo-700 focus:outline-none"
+               onClick={() => setMenuOpen(!menuOpen)}
+               aria-label={menuOpen ? 'Sulje valikko' : 'Avaa valikko'}
+             >
+               {/* Hamburger and close icons */}
+               {!menuOpen ? (
+                 <svg
+                   xmlns="http://www.w3.org/2000/svg"
+                   fill="none"
+                   viewBox="0 0 24 24"
+                   strokeWidth={1.5}
+                   stroke="currentColor"
+                   className="w-7 h-7"
+                 >
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+                 </svg>
+               ) : (
+                 <svg
+                   xmlns="http://www.w3.org/2000/svg"
+                   fill="none"
+                   viewBox="0 0 24 24"
+                   strokeWidth={1.5}
+                   stroke="currentColor"
+                   className="w-7 h-7"
+                 >
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                 </svg>
+               )}
+             </button>
+             {/* Mobile navigation dropdown */}
+             {menuOpen && (
+               <div className="absolute right-4 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 md:hidden">
+                 <SignedOut>
+                   <a
+                     href="/sign-in"
+                     className="block px-4 py-2 text-indigo-700 font-semibold hover:bg-gray-100"
+                     onClick={() => setMenuOpen(false)}
+                   >
+                     Kirjaudu sisään
+                   </a>
+                   <a
+                     href="/sign-up"
+                     className="block px-4 py-2 text-indigo-700 font-semibold hover:bg-gray-100"
+                     onClick={() => setMenuOpen(false)}
+                   >
+                     Rekisteröidy
+                   </a>
+                 </SignedOut>
+                 <SignedIn>
+                   <a
+                     href="/profile"
+                     className="block px-4 py-2 text-indigo-700 font-semibold hover:bg-gray-100"
+                     onClick={() => setMenuOpen(false)}
+                   >
+                     Profiili
+                   </a>
+                   <a
+                     href="/action"
+                     className="block px-4 py-2 text-indigo-700 font-semibold hover:bg-gray-100"
+                     onClick={() => setMenuOpen(false)}
+                   >
+                     Postaukset
+                   </a>
+                   <button
+                     onClick={async () => {
+                       try {
+                         await signOut();
+                       } finally {
+                         window.location.href = '/';
+                       }
+                     }}
+                     className="block w-full text-left px-4 py-2 text-indigo-700 font-semibold hover:bg-gray-100"
+                   >
+                     Kirjaudu ulos
+                   </button>
+                 </SignedIn>
+               </div>
+             )}
+           </header>
       <main className="flex-grow">{pageComponent}</main>
       {/* Footer */}
       <footer className="bg-gray-100 py-6 text-center text-gray-600">
