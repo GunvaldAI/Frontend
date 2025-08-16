@@ -76,10 +76,15 @@ const ActionPage = () => {
         postsArray = parsed.posts;
       }
       // Initialize posts with additional metadata for UI interactions
+      // We add an `imageGenerating` flag per post so that we can show a
+      // loading indicator on the per‑post generate button while an image
+      // request is in flight.  Each post starts in a pending state and
+      // editing mode disabled.
       const postsWithMeta = postsArray.map((p) => ({
         ...p,
         status: 'pending', // possible values: pending, accepted, rejected
         editing: false,
+        imageGenerating: false,
       }));
       setPosts(postsWithMeta);
     } catch (err) {
@@ -143,6 +148,16 @@ const ActionPage = () => {
     if (!posts || idx < 0 || idx >= posts.length) return;
     setImageLoading(true);
     setImageError(null);
+    // Mark this specific post as generating an image so the UI can
+    // reflect loading state per card.  Copy the posts array to avoid
+    // mutating state directly.
+    setPosts((prev) => {
+      const updated = [...prev];
+      if (idx >= 0 && idx < updated.length) {
+        updated[idx] = { ...updated[idx], imageGenerating: true };
+      }
+      return updated;
+    });
     try {
       const prompt = posts[idx].imagePrompt || posts[idx].text.slice(0, 50);
       const token = await getToken();
@@ -162,13 +177,31 @@ const ActionPage = () => {
       const images = await res.json();
       const url = images && images.length > 0 ? images[0] : null;
       if (url) {
-        const newPosts = [...posts];
-        newPosts[idx].imageUrl = url;
-        setPosts(newPosts);
+        // Update the specific post with the new image URL and clear
+        // the loading flag.
+        setPosts((prev) => {
+          const updated = [...prev];
+          if (idx >= 0 && idx < updated.length) {
+            updated[idx] = {
+              ...updated[idx],
+              imageUrl: url,
+              imageGenerating: false,
+            };
+          }
+          return updated;
+        });
       }
     } catch (err) {
       console.error('Single image generation error', err);
       setImageError(err.message || 'Tuntematon virhe');
+      // Clear the loading flag on this post even if the request fails.
+      setPosts((prev) => {
+        const updated = [...prev];
+        if (idx >= 0 && idx < updated.length) {
+          updated[idx] = { ...updated[idx], imageGenerating: false };
+        }
+        return updated;
+      });
     } finally {
       setImageLoading(false);
     }
@@ -322,8 +355,11 @@ const ActionPage = () => {
                         <button
                           className="px-3 py-1 bg-purple-500 text-white rounded"
                           onClick={() => handleGenerateImage(idx)}
+                          disabled={post.imageGenerating || imageLoading}
                         >
-                          Generoi kuva
+                          {post.imageGenerating
+                            ? 'Generoi kuva...'
+                            : 'Generoi kuva'}
                         </button>
                       </div>
                     )}
@@ -348,18 +384,8 @@ const ActionPage = () => {
               {imageError}
             </div>
           )}
-          {/* Button to generate images for all posts */}
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={handleGenerateImages}
-              disabled={imageLoading}
-              className={`px-6 py-2 rounded text-white bg-purple-600 hover:bg-purple-700 transition ${
-                imageLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {imageLoading ? 'Generoi kuvia...' : 'Generoi kuvat'}
-            </button>
-          </div>
+          {/* The global "Generoi kuvat" button has been removed since each
+              post has its own image generation control. */}
         </>
       )}
       {posts.length === 0 && !loading && !error && (
