@@ -1,8 +1,9 @@
-// Profiilisivu, joka hakee ja tallentaa yrityksen tiedot Clerk-tunnuksen perusteella.
+// Profiilisivu, joka hakee ja tallentaa yrityksen tiedot Clerk-tunnuksen 
+// perusteella.
 // Tämä versio käyttää uutta /profiles REST-APIa, joka tunnistaa käyttäjän
 // Clerk-ID:n avulla ja tallentaa tiedot JSON-sarakkeisiin.  Lomakkeessa
 // kysytään yrityksen nimi, kuvaus, kohdeyleisö, äänen sävy, some-kanavat,
-// markkinointitavoitteet ja sisällön teemat sekä 3–10 kuvaa.
+// markkinointitavoitteet ja sisällön teemat sekä jopa 30 referenssikuvaa.
 
 import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
@@ -11,6 +12,9 @@ function ProfilePage() {
   const { user } = useUser();
   const { getToken } = useAuth();
   const clerkId = user?.id;
+
+  // Max number of images a user can upload to their profile.
+  const MAX_IMAGES = 30;
 
   const [profile, setProfile] = useState({
     company_name: '',
@@ -23,16 +27,13 @@ function ProfilePage() {
     images: [],
   });
   const [loading, setLoading] = useState(true);
-  // Indicate whether a profile already exists for this Clerk user.  We
-  // use this flag to decide whether to POST (create) or PUT (update)
-  // when saving.
+  // Indicate whether a profile already exists for this Clerk user.
   const [hasProfile, setHasProfile] = useState(false);
   const [error, setError] = useState(null);
   // Success message for user feedback after saving profile
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Lataa profiili, jos käyttäjä on kirjautunut sisään.  Jos profiilia
-  // ei löydy, jätä lomake tyhjäksi.  Käytä Clerk-tunnusta URL-parametrina.
+  // Load profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       if (!clerkId) {
@@ -49,7 +50,7 @@ function ProfilePage() {
           },
         });
         if (res.status === 404) {
-          // Ei profiilia vielä – käytä oletuksia
+          // No existing profile – leave form blank
           setHasProfile(false);
           setLoading(false);
           return;
@@ -64,7 +65,7 @@ function ProfilePage() {
           target_audience: data.target_audience || '',
           tone_of_voice: data.tone_of_voice || '',
           social_channels: data.social_channels || [],
-          marketing_goals: data.marketing_goals || '', // marketing_goals may not yet be stored
+          marketing_goals: data.marketing_goals || '',
           content_themes: data.content_themes || '',
           images: data.images || [],
         });
@@ -83,11 +84,11 @@ function ProfilePage() {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Käsittele kuvien valinta ja konvertoi base64-muotoon.  Vain 3–10 kuvaa.
+  // Handle image selection and convert to base64. Allow 0–MAX_IMAGES images.
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length < 3 || files.length > 10) {
-      setError('Valitse 3–10 kuvaa.');
+    if (files.length > MAX_IMAGES) {
+      setError(`Valitse enintään ${MAX_IMAGES} kuvaa.`);
       return;
     }
     Promise.all(
@@ -111,7 +112,7 @@ function ProfilePage() {
 
   const handleSave = (e) => {
     e.preventDefault();
-    // Clear any previous errors or success messages
+    // Clear previous messages
     setError(null);
     setSuccessMessage('');
     if (!clerkId) {
@@ -128,15 +129,14 @@ function ProfilePage() {
           target_audience: profile.target_audience,
           tone_of_voice: profile.tone_of_voice,
           social_channels: profile.social_channels,
-          images: profile.images,
+          marketing_goals: profile.marketing_goals,
           content_themes: profile.content_themes,
+          images: profile.images,
         };
-        // Decide HTTP method and URL based on whether profile exists
         const method = hasProfile ? 'PUT' : 'POST';
         const url = hasProfile
           ? `${apiBase}/api/profiles/${clerkId}`
           : `${apiBase}/api/profiles`;
-        // Include Clerk ID only when creating a new profile
         const payload = hasProfile ? body : { ...body, clerk_id: clerkId };
         const res = await fetch(url, {
           method,
@@ -150,11 +150,8 @@ function ProfilePage() {
           throw new Error('Save failed');
         }
         const data = await res.json();
-        // Päivitä mahdolliset uudet arvot lomakkeeseen (esim. id)
         setProfile((prev) => ({ ...prev, ...data }));
-        // Newly created profile now exists
         setHasProfile(true);
-        // Set success message on successful save
         setSuccessMessage('Tiedot tallennettu onnistuneesti');
       } catch (err) {
         console.error('Failed to save profile:', err);
@@ -178,6 +175,9 @@ function ProfilePage() {
         <label className="block mb-1 font-medium" htmlFor="company_name">
           Yrityksen nimi
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          Syötä yrityksesi tai brändisi nimi.
+        </p>
         <input
           id="company_name"
           type="text"
@@ -190,6 +190,9 @@ function ProfilePage() {
         <label className="block mb-1 font-medium" htmlFor="description">
           Kuvaus ja ydinviesti
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          Kerro lyhyesti, mitä tarjoat ja mikä tekee sinusta ainutlaatuisen.
+        </p>
         <textarea
           id="description"
           className="w-full border rounded px-2 py-1"
@@ -202,6 +205,9 @@ function ProfilePage() {
         <label className="block mb-1 font-medium" htmlFor="target_audience">
           Kohdeyleisö
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          Kuvaile kohdeyleisösi (esim. ikäryhmä, sijainti, kiinnostuksen kohteet).
+        </p>
         <input
           id="target_audience"
           type="text"
@@ -214,6 +220,9 @@ function ProfilePage() {
         <label className="block mb-1 font-medium" htmlFor="tone_of_voice">
           Äänen sävy
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          Määrittele brändisi äänensävy (esim. rento, innostava, asiallinen).
+        </p>
         <input
           id="tone_of_voice"
           type="text"
@@ -226,6 +235,9 @@ function ProfilePage() {
         <label className="block mb-1 font-medium" htmlFor="social_channels">
           Some-kanavat (pilkuin erotettuna)
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          Luettele sosiaalisen median kanavat, joissa olet aktiivinen, pilkuilla erotettuna.
+        </p>
         <input
           id="social_channels"
           type="text"
@@ -243,6 +255,9 @@ function ProfilePage() {
         <label className="block mb-1 font-medium" htmlFor="content_themes">
           Sisällön teemat/avainsanat
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          Kirjoita teemat tai avainsanat, joista haluat postauksia (esim. sahti, käsityöläisolut).
+        </p>
         <input
           id="content_themes"
           type="text"
@@ -255,6 +270,9 @@ function ProfilePage() {
         <label className="block mb-1 font-medium" htmlFor="marketing_goals">
           Markkinointitavoitteet
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          Määrittele markkinointisi tavoitteet (esim. brändin tunnettuus, myynnin kasvu).
+        </p>
         <input
           id="marketing_goals"
           type="text"
@@ -265,8 +283,11 @@ function ProfilePage() {
       </div>
       <div>
         <label className="block mb-1 font-medium" htmlFor="images">
-          Lisää 3–10 kuvaa (perustuu generointiin)
+          Lisää 0–{MAX_IMAGES} referenssikuvaa
         </label>
+        <p className="text-sm text-gray-600 italic mb-1">
+          AI käyttää näitä kuvia visuaalisina referensseinä, kun se generoi uusia kuvia.
+        </p>
         <input
           id="images"
           type="file"
@@ -276,7 +297,20 @@ function ProfilePage() {
           onChange={handleImagesChange}
         />
         {profile.images && profile.images.length > 0 && (
-          <p>{profile.images.length} kuvaa valittu.</p>
+          <p className="mt-2">{profile.images.length} kuvaa valittu.</p>
+        )}
+        {/* Display a gallery of existing images */}
+        {profile.images && profile.images.length > 0 && (
+          <div className="mt-2 flex flex-wrap">
+            {profile.images.map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt={`Profiilikuva ${idx + 1}`}
+                className="w-24 h-24 object-cover mr-2 mb-2 border"
+              />
+            ))}
+          </div>
         )}
       </div>
       <button
