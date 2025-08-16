@@ -11,8 +11,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@clerk/clerk-react": "^4.0.0",
-    "posthog-js": "^1.0.0"
-    ,"@sentry/react": "^7.51.1",
+    "posthog-js": "^1.260.1",
+    "@sentry/react": "^7.51.1",
     "@sentry/tracing": "^7.51.1"
   },
   "devDependencies": {
