@@ -33,6 +33,33 @@ function ProfilePage() {
   // Success message for user feedback after saving profile
   const [successMessage, setSuccessMessage] = useState('');
 
+  /**
+   * Derive the Cloudinary public ID from a given secure URL.
+   * Cloudinary URLs have the format:
+   * https://res.cloudinary.com/<cloud_name>/image/upload/v<timestamp>/<folder>/<filename>.<ext>
+   * We skip the version segment (e.g. v1691234567) and remove the file extension.
+   * @param {string} url - The secure_url returned by Cloudinary
+   * @returns {string} publicId - The public ID (folder/filename without extension)
+   */
+  const getPublicIdFromUrl = (url) => {
+    try {
+      const parts = url.split('/');
+      // Find the index of 'upload' in the URL path
+      const uploadIndex = parts.findIndex((p) => p === 'upload');
+      if (uploadIndex === -1) return '';
+      // The segment after 'upload' is the version (e.g. v1234567890) – skip it
+      const pathParts = parts.slice(uploadIndex + 2);
+      if (pathParts.length === 0) return '';
+      const pathWithExt = pathParts.join('/');
+      // Remove file extension (last dot and following characters)
+      const publicId = pathWithExt.replace(/\.[^/.]+$/, '');
+      return publicId;
+    } catch (e) {
+      console.warn('Failed to derive Cloudinary public ID', e);
+      return '';
+    }
+  };
+
   // Load profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
@@ -144,18 +171,39 @@ function ProfilePage() {
     }
   };
 
-      /**
-       * Remove an uploaded image from the profile by index. This only updates
-       * the client-side state; the image will remain in Cloudinary but won't
-       * be referenced in the profile after saving. A future enhancement could
-       * call a backend endpoint to delete the Cloudinary resource.
-       */
-      const handleDeleteImage = (index) => {
-        setProfile((prev) => ({
-          ...prev,
-          images: prev.images.filter((_, i) => i !== index),
-        }));
-      };
+  /**
+   * Remove an uploaded image from the profile by index. This updates the
+   * client-side state and also requests the backend to delete the
+   * corresponding Cloudinary resource to avoid orphaned files.
+   * @param {number} index - index of the image in profile.images
+   */
+  const handleDeleteImage = async (index) => {
+    const imageUrl = profile.images[index];
+    // Optimistically update UI by removing the image from state
+    setProfile((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+    try {
+      const token = await getToken();
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const publicId = getPublicIdFromUrl(imageUrl);
+      if (!publicId) {
+        console.warn('Could not derive Cloudinary publicId from URL', imageUrl);
+        return;
+      }
+      await fetch(`${apiBase}/api/delete-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        body: JSON.stringify({ publicId }),
+      });
+    } catch (err) {
+      console.error('Failed to delete image', err);
+    }
+  };
 
   const handleSave = (e) => {
     e.preventDefault();
