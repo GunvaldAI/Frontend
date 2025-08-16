@@ -63,7 +63,7 @@ const App = () => {
           <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 pt-24 pb-32">
             {/* Rotating gradient blob behind the card stack */}
             <div
-              className="absolute -top-20 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-indigo-500 opacity-60 blur-3xl animate-spin"
+              className="absolute -top-20 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-indigo-500 opacity-60 blur-3xl animate-spin pointer-events-none"
               style={{ animationDuration: '20s' }}
             ></div>
             <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center">
