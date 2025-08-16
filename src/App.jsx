@@ -60,7 +60,7 @@ const App = () => {
   const HomePage = () => (
     <div className="flex flex-col">
       {/* Hero section */}
-          <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 pt-24 pb-32">
+          <section className="relative z-0 overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 pt-24 pb-32">
             {/* Rotating gradient blob behind the card stack */}
             <div
               className="absolute -top-20 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-indigo-500 opacity-60 blur-3xl animate-spin pointer-events-none"
@@ -270,7 +270,7 @@ const App = () => {
        return (
          <div className="min-h-screen flex flex-col font-sans">
            {/* Header with responsive navigation */}
-           <header className="relative flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
+           <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
              {/* Logo */}
              <div className="text-2xl font-bold text-indigo-700">
                <a href="/">Gunvald</a>
