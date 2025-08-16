@@ -138,6 +138,19 @@ function ProfilePage() {
     }
   };
 
+      /**
+       * Remove an uploaded image from the profile by index. This only updates
+       * the client-side state; the image will remain in Cloudinary but won't
+       * be referenced in the profile after saving. A future enhancement could
+       * call a backend endpoint to delete the Cloudinary resource.
+       */
+      const handleDeleteImage = (index) => {
+        setProfile((prev) => ({
+          ...prev,
+          images: prev.images.filter((_, i) => i !== index),
+        }));
+      };
+
   const handleSave = (e) => {
     e.preventDefault();
     // Clear previous messages
@@ -328,18 +341,28 @@ function ProfilePage() {
           <p className="mt-2">{profile.images.length} kuvaa valittu.</p>
         )}
         {/* Display a gallery of existing images */}
-        {profile.images && profile.images.length > 0 && (
-          <div className="mt-2 flex flex-wrap">
-            {profile.images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`Profiilikuva ${idx + 1}`}
-                className="w-24 h-24 object-cover mr-2 mb-2 border"
-              />
-            ))}
-          </div>
-        )}
+            {profile.images && profile.images.length > 0 && (
+              <div className="mt-2 flex flex-wrap">
+                {profile.images.map((img, idx) => (
+                  <div key={idx} className="relative mr-2 mb-2">
+                    <img
+                      src={img}
+                      alt={`Profiilikuva ${idx + 1}`}
+                      className="w-24 h-24 object-cover border"
+                    />
+                    {/* Delete button overlay */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(idx)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                      aria-label="Poista kuva"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
       </div>
       <button
         type="submit"
