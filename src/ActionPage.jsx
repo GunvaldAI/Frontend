@@ -20,6 +20,9 @@ const ActionPage = () => {
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Note: we keep imageLoading state only for potential future use in
+  // global image generation.  At the moment, per-post image generation
+  // relies solely on the `imageGenerating` flag within each post.
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(null);
 
@@ -146,20 +149,26 @@ const ActionPage = () => {
    */
   const handleGenerateImage = async (idx) => {
     if (!posts || idx < 0 || idx >= posts.length) return;
-    setImageLoading(true);
+    // Reset any previous image error.  We rely solely on the per‑post
+    // loading flag (`imageGenerating`) to signal progress.
     setImageError(null);
-    // Mark this specific post as generating an image so the UI can
-    // reflect loading state per card.  Copy the posts array to avoid
-    // mutating state directly.
-    setPosts((prev) => {
-      const updated = [...prev];
+    // Mark this specific post as generating so the UI can show a spinner.
+    setPosts((prevPosts) => {
+      const updated = [...prevPosts];
       if (idx >= 0 && idx < updated.length) {
         updated[idx] = { ...updated[idx], imageGenerating: true };
       }
       return updated;
     });
     try {
-      const prompt = posts[idx].imagePrompt || posts[idx].text.slice(0, 50);
+      // Compute the prompt using the current state of the post.  Use a copy
+      // of posts from the closure to avoid referencing stale state after
+      // setPosts calls.
+      const currentPost = posts[idx];
+      const prompt =
+        (currentPost &&
+          (currentPost.imagePrompt || currentPost.text?.slice(0, 50))) ||
+        '';
       const token = await getToken();
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.gunvald.fi';
       const res = await fetch(`${baseUrl}/api/generate-images`, {
@@ -174,36 +183,38 @@ const ActionPage = () => {
         const txt = await res.text();
         throw new Error(txt || 'Failed to generate image');
       }
-      const images = await res.json();
-      const url = images && images.length > 0 ? images[0] : null;
-      if (url) {
-        // Update the specific post with the new image URL and clear
-        // the loading flag.
-        setPosts((prev) => {
-          const updated = [...prev];
-          if (idx >= 0 && idx < updated.length) {
-            updated[idx] = {
-              ...updated[idx],
-              imageUrl: url,
-              imageGenerating: false,
-            };
-          }
-          return updated;
-        });
+      // Expect the response to be a JSON array of URLs.
+      let images;
+      try {
+        images = await res.json();
+      } catch (parseErr) {
+        // If parsing fails, treat as unknown error.
+        throw new Error('Virheellinen kuvaresponssi');
       }
+      const url = Array.isArray(images) && images.length > 0 ? images[0] : null;
+      // Update the specific post with the new image or clear the loading flag.
+      setPosts((prevPosts) => {
+        const updated = [...prevPosts];
+        if (idx >= 0 && idx < updated.length) {
+          updated[idx] = {
+            ...updated[idx],
+            imageUrl: url || updated[idx].imageUrl,
+            imageGenerating: false,
+          };
+        }
+        return updated;
+      });
     } catch (err) {
       console.error('Single image generation error', err);
       setImageError(err.message || 'Tuntematon virhe');
-      // Clear the loading flag on this post even if the request fails.
-      setPosts((prev) => {
-        const updated = [...prev];
+      // Ensure we always clear the loading flag even on error.
+      setPosts((prevPosts) => {
+        const updated = [...prevPosts];
         if (idx >= 0 && idx < updated.length) {
           updated[idx] = { ...updated[idx], imageGenerating: false };
         }
         return updated;
       });
-    } finally {
-      setImageLoading(false);
     }
   };
 
@@ -402,7 +413,7 @@ const ActionPage = () => {
                         <button
                           className="px-3 py-1 bg-purple-500 text-white rounded"
                           onClick={() => handleGenerateImage(idx)}
-                          disabled={post.imageGenerating || imageLoading}
+                          disabled={post.imageGenerating}
                         >
                           {post.imageGenerating
                             ? 'Generoi kuva...'
