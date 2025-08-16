@@ -25,6 +25,42 @@ const ActionPage = () => {
   // relies solely on the `imageGenerating` flag within each post.
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(null);
+  // Store the user's uploaded profile images.  These images are loaded
+  // from the profile API on component mount and can be passed to the
+  // image generation endpoint to provide context for the AI (e.g. brand
+  // imagery, product photos, etc.).
+  const [profileImages, setProfileImages] = useState([]);
+
+  // On mount, fetch the logged-in user's profile to retrieve any
+  // uploaded images.  We only need to do this once per page load.
+  React.useEffect(() => {
+    const fetchProfileImages = async () => {
+      try {
+        const token = await getToken();
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.gunvald.fi';
+        const res = await fetch(`${baseUrl}/api/profiles`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) {
+          // If the request fails, silently ignore; profile images are optional.
+          return;
+        }
+        const data = await res.json();
+        if (data && Array.isArray(data.images)) {
+          setProfileImages(data.images);
+        }
+      } catch (err) {
+        console.error('Failed to load profile images', err);
+      }
+    };
+    fetchProfileImages();
+    // We deliberately omit getToken from the dependency array because
+    // Clerk returns a stable function and we only need to fetch once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Calls the backend /api/generate endpoint to create a list of posts.
@@ -119,7 +155,11 @@ const ActionPage = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ prompts }),
+        // Include the user's uploaded profile images alongside prompts.  The
+        // backend may choose to use these images as reference material when
+        // generating new visuals.  If no profileImages are available the
+        // property will simply be an empty array.
+        body: JSON.stringify({ prompts, images: profileImages }),
       });
       if (!res.ok) {
         const txt = await res.text();
@@ -177,7 +217,11 @@ const ActionPage = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ prompts: [prompt] }),
+        // Pass the profileImages array so the AI can utilize user‑uploaded
+        // pictures as reference when creating the new image.  We send
+        // the prompt as a single-element array to preserve the API
+        // contract.
+        body: JSON.stringify({ prompts: [prompt], images: profileImages }),
       });
       if (!res.ok) {
         const txt = await res.text();
