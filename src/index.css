@@ -11,7 +11,11 @@
 /* Load fonts from Google Fonts.  Note: Salsiccia is not available via
  * Google Fonts, so we include Salsa as a stylistically similar fallback.
  */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Salsa&display=swap');
+/* Import Montserrat light (300) alongside Inter and Salsa.  Montserrat is used
+ * for the logotype in the header; weight 300 corresponds to Tailwind's
+ * `font-light` utility.  The Salsa font remains as a playful handwritten
+ * fallback for the logo when Salsiccia is unavailable. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Salsa&family=Montserrat:wght@300&display=swap');
 
 @tailwind base;
 @tailwind components;
