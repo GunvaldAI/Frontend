@@ -60,7 +60,7 @@ const App = () => {
   const HomePage = () => (
     <div className="flex flex-col">
       {/* Hero section */}
-          <section className="relative z-0 overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 pt-24 pb-40">
+          <section className="relative z-0 overflow-hidden pt-24 pb-40">
             {/* Rotating gradient blob behind the card stack */}
             <div
               className="absolute -top-20 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-indigo-500 opacity-60 blur-3xl animate-spin pointer-events-none"
@@ -271,9 +271,12 @@ const App = () => {
   }
 
        return (
-         <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+         <div
+           className="min-h-screen flex flex-col bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700"
+           style={{ fontFamily: "'Inter', sans-serif" }}
+         >
            {/* Header with responsive navigation */}
-                <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+                <header className="relative z-50 flex justify-between items-center px-6 py-4">
                   {/* Logo at the left side of the header.  Use Salsiccia (or fallback) for the logotype. */}
                          {/* Logo at the left side of the header. Use Saliccia (or fallback) for the logotype. */}
         {/*
