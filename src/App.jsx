@@ -270,7 +270,7 @@ const App = () => {
                 <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
                   {/* Logo at the left side of the header.  Use Salsiccia (or fallback) for the logotype. */}
                          {/* Logo at the left side of the header. Use Saliccia (or fallback) for the logotype. */}
-        <a href="/" className="text-2xl md:text-3xl font-extrabold text-indigo-700" style={{ fontFamily: "'Poppins', 'Inter', sans-serif" }}
+        <a href="/" className="text-2xl md:text-3xl font-extrabold text-indigo-700" style={{ fontFamily: "'Poppins', 'Inter', sans-serif'" }}>
           Gunvald
         </a>
 
