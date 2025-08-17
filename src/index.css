@@ -1,3 +1,18 @@
+/*
+ * Global styles for the Gunvald frontend.
+ *
+ * This file imports Tailwind base, components and utilities layers and
+ * also loads custom fonts from Google Fonts.  Inter is used for the body
+ * text and Salsa is a playful handwritten font used as a fallback for the
+ * logo.  The actual logotype uses the proprietary Salsiccia font if
+ * available, falling back to Salsa or Inter.
+ */
+
+/* Load fonts from Google Fonts.  Note: Salsiccia is not available via
+ * Google Fonts, so we include Salsa as a stylistically similar fallback.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Salsa&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

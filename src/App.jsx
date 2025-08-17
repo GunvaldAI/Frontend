@@ -68,16 +68,12 @@ const App = () => {
             ></div>
             <div className="max-w-6xl mx-auto px-6 flex flex-col items-center md:items-start">
               {/* Hero content: title, tagline and CTAs */}
-              <div className="flex-1 text-center md:text-left text-white">
-                <h1
-                  className="text-6xl md:text-7xl font-extrabold mb-6"
-                  style={{ fontFamily: "'Salsiccia', 'Inter', sans-serif" }}
-                >
-                  Gunvald
-                </h1>
-                <p className="text-2xl md:text-3xl mb-10 max-w-3xl mx-auto md:mx-0">
-                  Tekoälyavusteinen sosiaalisen median assistentti. Luo, ajasta ja analysoi sisällöt vaivattomasti.
-                </p>
+                  <div className="flex-1 text-center md:text-left text-white">
+                    {/* Tagline only – the logotype appears in the header.  Increase font size for emphasis. */}
+                    <p className="text-3xl md:text-4xl mb-10 max-w-3xl mx-auto md:mx-0">
+                      Tekoälyavusteinen sosiaalisen median assistentti. Luo, ajasta ja analysoi sisällöt
+                      vaivattomasti.
+                    </p>
                 <SignedOut>
                   <div className="space-x-4 mb-8">
                     <a
@@ -271,9 +267,14 @@ const App = () => {
        return (
          <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
            {/* Header with responsive navigation */}
-           <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
-             {/* Placeholder for logo (logo displayed in hero section) */}
-             <div className="text-2xl font-bold text-indigo-700"></div>
+                <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
+                  {/* Logo at the left side of the header.  Use Salsiccia (or fallback) for the logotype. */}
+                  <div
+                    className="text-2xl md:text-3xl font-extrabold text-indigo-700"
+                    style={{ fontFamily: "'Salsiccia', 'Salsa', 'Inter', sans-serif" }}
+                  >
+                    Gunvald
+                  </div>
              {/* Desktop navigation */}
              <nav className="hidden md:flex items-center space-x-4">
                <SignedOut>
