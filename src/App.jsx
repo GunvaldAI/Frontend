@@ -68,9 +68,9 @@ const App = () => {
             ></div>
             <div className="max-w-6xl mx-auto px-6 flex flex-col items-center md:items-start">
               {/* Hero content: title, tagline and CTAs */}
-                  <div className="flex-1 text-center md:text-left text-white">
+                  <div className="flex-1 text-center md:text-left text-white" style={{ textAlign: 'left' }}>
                     {/* Tagline only – the logotype appears in the header.  Increase font size for emphasis. */}
-                    <p className="text-3xl md:text-4xl mb-10 max-w-3xl mx-auto md:mx-0">
+                    <p className="text-3xl md:text-4xl mb-10 max-w-3xl mx-auto md:mx-0" style={{ marginLeft: 0, marginRight: 0 }}>
                       Tekoälyavusteinen sosiaalisen median assistentti. Luo, ajasta ja analysoi sisällöt
                       vaivattomasti.
                     </p>
@@ -101,6 +101,12 @@ const App = () => {
                   </div>
                 </SignedIn>
               </div>
+            </div>
+            {/* Decorative angled shape at bottom of the hero section */}
+            <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+              <svg viewBox="0 0 500 80" preserveAspectRatio="none" className="w-full h-16 md:h-24">
+                <path d="M0 0 L500 80 L0 80 Z" className="fill-white"></path>
+              </svg>
             </div>
           </section>
       {/* Introduction section */}
@@ -267,7 +273,7 @@ const App = () => {
        return (
          <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
            {/* Header with responsive navigation */}
-                <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
+                <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
                   {/* Logo at the left side of the header.  Use Salsiccia (or fallback) for the logotype. */}
                          {/* Logo at the left side of the header. Use Saliccia (or fallback) for the logotype. */}
         {/*
@@ -278,8 +284,8 @@ const App = () => {
         */}
         <a
           href="/"
-          className="text-2xl md:text-3xl font-light text-indigo-700"
-          style={{ fontFamily: "'Montserrat', 'Inter', sans-serif'" }}
+          className="text-2xl md:text-3xl font-light"
+          style={{ fontFamily: "'Montserrat', 'Inter', sans-serif'", color: 'white' }}
         >
           Gunvald
         </a>
@@ -320,7 +326,8 @@ const App = () => {
         </nav>
              {/* Mobile menu toggle */}
              <button
-               className="md:hidden text-indigo-700 focus:outline-none"
+               className="md:hidden focus:outline-none"
+               style={{ color: 'white' }}
                onClick={() => setMenuOpen(!menuOpen)}
                aria-label={menuOpen ? 'Sulje valikko' : 'Avaa valikko'}
              >
