@@ -270,43 +270,44 @@ const App = () => {
                 <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
                   {/* Logo at the left side of the header.  Use Salsiccia (or fallback) for the logotype. */}
                          {/* Logo at the left side of the header. Use Saliccia (or fallback) for the logotype. */}
-        <a href="/" className="text-2xl md:text-3xl font-extrabold text-indigo-700" style={{ fontFamily: "'Poppins', 'Inter', sans-serif'" }}>
+        <a href="/" className="text-2xl md:text-3xl font-extrabold text-indigo-700" style={{ fontFamily: "'Poppins', 'Inter', sans-serif" }}>
           Gunvald
         </a>
 
-
-                  
-                 <a href="/sign-in" className="text-indigo-700 font-semibold hover:underline">
-                   Kirjaudu sisään
-                 </a>
-                 <a
-                   href="/sign-up"
-                   className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
-                 >
-                   Rekisteröidy
-                 </a>
-               </SignedOut>
-               <SignedIn>
-                 <a href="/profile" className="text-indigo-700 font-semibold hover:underline">
-                   Profiili
-                 </a>
-                 <a href="/action" className="text-indigo-700 font-semibold hover:underline">
-                   Postaukset
-                 </a>
-                 <button
-                   onClick={async () => {
-                     try {
-                       await signOut();
-                     } finally {
-                       window.location.href = '/';
-                     }
-                   }}
-                   className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
-                 >
-                   Kirjaudu ulos
-                 </button>
-               </SignedIn>
-             </nav>
+        {/* Desktop navigation */}
+        <nav className="hidden md:flex items-center space-x-4">
+          <SignedOut>
+            <a href="/sign-in" className="text-indigo-700 font-semibold hover:underline">
+              Kirjaudu sisään
+            </a>
+            <a
+              href="/sign-up"
+              className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
+            >
+              Rekisteröidy
+            </a>
+          </SignedOut>
+          <SignedIn>
+            <a href="/profile" className="text-indigo-700 font-semibold hover:underline">
+              Profiili
+            </a>
+            <a href="/action" className="text-indigo-700 font-semibold hover:underline">
+              Postaukset
+            </a>
+            <button
+              onClick={async () => {
+                try {
+                  await signOut();
+                } finally {
+                  window.location.href = '/';
+                }
+              }}
+              className="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800 transition"
+            >
+              Kirjaudu ulos
+            </button>
+          </SignedIn>
+        </nav>
              {/* Mobile menu toggle */}
              <button
                className="md:hidden text-indigo-700 focus:outline-none"
