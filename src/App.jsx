@@ -60,17 +60,22 @@ const App = () => {
   const HomePage = () => (
     <div className="flex flex-col">
       {/* Hero section */}
-          <section className="relative z-0 overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 pt-24 pb-32">
+          <section className="relative z-0 overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 pt-24 pb-40">
             {/* Rotating gradient blob behind the card stack */}
             <div
               className="absolute -top-20 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-indigo-500 opacity-60 blur-3xl animate-spin pointer-events-none"
               style={{ animationDuration: '20s' }}
             ></div>
-            <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center">
-              {/* Left column: title, tagline and CTAs */}
+            <div className="max-w-6xl mx-auto px-6 flex flex-col items-center md:items-start">
+              {/* Hero content: title, tagline and CTAs */}
               <div className="flex-1 text-center md:text-left text-white">
-                <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Gunvald</h1>
-                <p className="text-xl md:text-2xl mb-8 max-w-xl mx-auto md:mx-0">
+                <h1
+                  className="text-6xl md:text-7xl font-extrabold mb-6"
+                  style={{ fontFamily: "'Salsiccia', 'Inter', sans-serif" }}
+                >
+                  Gunvald
+                </h1>
+                <p className="text-2xl md:text-3xl mb-10 max-w-3xl mx-auto md:mx-0">
                   Tekoälyavusteinen sosiaalisen median assistentti. Luo, ajasta ja analysoi sisällöt vaivattomasti.
                 </p>
                 <SignedOut>
@@ -99,10 +104,6 @@ const App = () => {
                     </a>
                   </div>
                 </SignedIn>
-              </div>
-              {/* Right column: 3D card stack */}
-              <div className="flex-1 flex justify-center mt-12 md:mt-0">
-                <CardStack />
               </div>
             </div>
           </section>
@@ -268,13 +269,11 @@ const App = () => {
   }
 
        return (
-         <div className="min-h-screen flex flex-col font-sans">
+         <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
            {/* Header with responsive navigation */}
            <header className="relative z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur shadow">
-             {/* Logo */}
-             <div className="text-2xl font-bold text-indigo-700">
-               <a href="/">Gunvald</a>
-             </div>
+             {/* Placeholder for logo (logo displayed in hero section) */}
+             <div className="text-2xl font-bold text-indigo-700"></div>
              {/* Desktop navigation */}
              <nav className="hidden md:flex items-center space-x-4">
                <SignedOut>
