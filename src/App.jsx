@@ -9,6 +9,13 @@ import ProfilePage from './ProfilePage.jsx';
 // Import the ActionPage component which handles AI post generation.
 import ActionPage from './ActionPage.jsx';
 
+// Import Readdy-inspired components.  These provide the header, hero,
+// feature section and footer for the redesigned landing page.
+import ReaddyHeader from './components/ReaddyHeader.jsx';
+import ReaddyHeroSection from './components/ReaddyHeroSection.jsx';
+import ReaddyFeatureSection from './components/ReaddyFeatureSection.jsx';
+import ReaddyFooter from './components/ReaddyFooter.jsx';
+
 // Home page, static information pages and header/footer definitions.
 // This file defines a custom landing page with a hero section, animated graphic,
 // introduction, how it works, benefits and a placeholder video section.
@@ -248,6 +255,19 @@ const App = () => {
     </div>
   );
 
+  // New landing page built with Readdy-inspired components.  This page
+  // combines the header, hero, feature section and footer into one
+  // continuous layout.  It is rendered when the current path is '/' to
+  // provide a fresh look while preserving functionality on other pages.
+  const NewHomePage = () => (
+    <div className="flex flex-col min-h-screen">
+      <ReaddyHeader />
+      <ReaddyHeroSection />
+      <ReaddyFeatureSection />
+      <ReaddyFooter />
+    </div>
+  );
+
   // Decide which page to render based on current path.
   let pageComponent;
   switch (currentPath) {
@@ -268,6 +288,15 @@ const App = () => {
       break;
     default:
       pageComponent = <HomePage />;
+  }
+
+  // Render the redesigned landing page on the root path.  When the current
+  // path is '/', bypass the legacy gradient background and header and
+  // instead render the new landing page composed of Readdy-inspired
+  // components.  This condition keeps all other pages functioning as
+  // before while offering a fresh look for the homepage.
+  if (currentPath === '/') {
+    return <NewHomePage />;
   }
 
        return (

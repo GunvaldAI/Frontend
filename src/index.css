@@ -17,6 +17,9 @@
  * fallback for the logo when Salsiccia is unavailable. */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Salsa&family=Montserrat:wght@300&display=swap');
 
+/* Import Remixicon library for iconography used in the Readdy design. */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.min.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
