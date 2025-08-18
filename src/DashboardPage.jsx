@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
 import ProfilePage from './ProfilePage.jsx';
 import ActionPage from './ActionPage.jsx';
+import DashboardHeader from './DashboardHeader.jsx';
 
 /**
  * Dashboard page inspired by the Readdy design.  The dashboard is split
@@ -145,13 +146,13 @@ const DashboardPage = () => {
       </aside>
       {/* Main content */}
       <div className="flex-1 bg-gray-50">
-        {/* Top bar */}
-        <div className="border-b border-gray-200 py-4 px-6 flex justify-between items-center bg-white">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {activeTab === 'overview' ? 'Yleiskatsaus' : activeTab === 'profile' ? 'Profiili' : 'Postaukset'}
-          </h1>
-        </div>
+        {/* Dashboard header */}
+        <DashboardHeader />
         <div className="p-6">
+          {/* Page title displayed within main content for context */}
+          {activeTab === 'overview' && <h1 className="text-2xl font-bold text-gray-900 mb-4">Yleiskatsaus</h1>}
+          {activeTab === 'profile' && <></>}
+          {activeTab === 'posts' && <h1 className="text-2xl font-bold text-gray-900 mb-4">Postaukset</h1>}
           {renderContent()}
         </div>
       </div>

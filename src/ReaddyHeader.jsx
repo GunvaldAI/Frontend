@@ -12,6 +12,12 @@ import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
 const ReaddyHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { signOut } = useClerk();
+
+  // Determine if we are on the home (landing) page.  When on the
+  // landing page the header should integrate seamlessly with the hero
+  // section by using lighter text colours.  Since window is undefined
+  // during server rendering, guard against its absence.
+  const isHome = typeof window !== 'undefined' && window.location.pathname === '/';
   return (
     <header className="bg-transparent backdrop-blur-md border-b border-white/20 shadow-sm relative">
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8 flex items-center justify-between py-4">
@@ -26,16 +32,28 @@ const ReaddyHeader = () => {
         </div>
         {/* Navigation – desktop */}
         <nav className="hidden lg:flex items-center space-x-1">
-          <a href="/dashboard" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
+          <a
+            href="/dashboard"
+            className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30`}
+          >
             Hallintapaneeli
           </a>
-          <a href="/dashboard/scheduler" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
+          <a
+            href="/dashboard/scheduler"
+            className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30`}
+          >
             Ajastus
           </a>
-          <a href="/dashboard/analytics" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
+          <a
+            href="/dashboard/analytics"
+            className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30`}
+          >
             Analytiikka
           </a>
-          <a href="/pricing" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
+          <a
+            href="/pricing"
+            className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30`}
+          >
             Hinnoittelu
           </a>
         </nav>
@@ -43,20 +61,32 @@ const ReaddyHeader = () => {
         <div className="hidden lg:flex items-center space-x-3">
           <SignedOut>
             <>
-              <a href="/sign-in" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-2 whitespace-nowrap">
+              <a
+                href="/sign-in"
+                className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-2 whitespace-nowrap`}
+              >
                 Kirjaudu sisään
               </a>
-              <a href="/sign-up" className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 whitespace-nowrap shadow-lg">
+              <a
+                href="/sign-up"
+                className={`${isHome ? 'border border-white text-white hover:bg-white hover:text-gray-900' : 'bg-gray-900 hover:bg-gray-800 text-white'} px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 whitespace-nowrap shadow-lg`}
+              >
                 Aloita nyt
               </a>
             </>
           </SignedOut>
           <SignedIn>
             <>
-              <a href="/action" className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 whitespace-nowrap shadow-lg">
+              <a
+                href="/action"
+                className={`${isHome ? 'border border-white text-white hover:bg-white hover:text-gray-900' : 'bg-gray-900 hover:bg-gray-800 text-white'} px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 whitespace-nowrap shadow-lg`}
+              >
                 Luo postaus
               </a>
-              <button onClick={() => signOut()} className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-2 whitespace-nowrap">
+              <button
+                onClick={() => signOut()}
+                className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-2 whitespace-nowrap`}
+              >
                 Kirjaudu ulos
               </button>
             </>
@@ -74,35 +104,59 @@ const ReaddyHeader = () => {
       {menuOpen && (
         <div className="lg:hidden py-4 border-t border-white/20">
           <nav className="flex flex-col space-y-1 px-6">
-            <a href="/dashboard" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
+            <a
+              href="/dashboard"
+              className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30`}
+            >
               Hallintapaneeli
             </a>
-            <a href="/dashboard/scheduler" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
+            <a
+              href="/dashboard/scheduler"
+              className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30`}
+            >
               Ajastus
             </a>
-            <a href="/dashboard/analytics" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
+            <a
+              href="/dashboard/analytics"
+              className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30`}
+            >
               Analytiikka
             </a>
-            <a href="/pricing" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
+            <a
+              href="/pricing"
+              className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30`}
+            >
               Hinnoittelu
             </a>
             <div className="flex flex-col space-y-2 pt-4 border-t border-white/20">
               <SignedOut>
                 <>
-                  <a href="/sign-in" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
+                  <a
+                    href="/sign-in"
+                    className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30`}
+                  >
                     Kirjaudu sisään
                   </a>
-                  <a href="/sign-up" className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 text-center whitespace-nowrap shadow-lg">
+                  <a
+                    href="/sign-up"
+                    className={`${isHome ? 'border border-white text-white hover:bg-white hover:text-gray-900' : 'bg-gray-900 hover:bg-gray-800 text-white'} px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 text-center whitespace-nowrap shadow-lg`}
+                  >
                     Aloita nyt
                   </a>
                 </>
               </SignedOut>
               <SignedIn>
                 <>
-                  <a href="/action" className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 text-center whitespace-nowrap shadow-lg">
+                  <a
+                    href="/action"
+                    className={`${isHome ? 'border border-white text-white hover:bg-white hover:text-gray-900' : 'bg-gray-900 hover:bg-gray-800 text-white'} px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 text-center whitespace-nowrap shadow-lg`}
+                  >
                     Luo postaus
                   </a>
-                  <button onClick={() => signOut()} className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30 text-left">
+                  <button
+                    onClick={() => signOut()}
+                    className={`${isHome ? 'text-white hover:text-white/80' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30 text-left`}
+                  >
                     Kirjaudu ulos
                   </button>
                 </>

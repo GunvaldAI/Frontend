@@ -222,50 +222,51 @@ function ProfilePage() {
   const frequencyOptions = ['Päivittäin', 'Useammin viikossa', 'Viikoittain', 'Harvemmin'];
 
   if (loading) {
-    return <div className="p-8 text-white">Ladataan...</div>;
+    // Näytetään latausviesti vaalealla taustalla ja tummalla tekstillä
+    return <div className="p-8 text-gray-600 bg-white">Ladataan...</div>;
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 lg:p-12 text-white max-w-6xl mx-auto">
+    <div className="p-4 sm:p-6 md:p-8 lg:p-12 bg-white text-gray-900 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-4">Profiili</h1>
       {/* Edistymispalkki */}
       <div className="mb-6">
-        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all"
+            className="h-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-        <p className="mt-2 text-sm text-gray-300">{progress}% täytetty</p>
+        <p className="mt-2 text-sm text-gray-600">{progress}% täytetty</p>
       </div>
       {/* Hyötybanneri */}
-      <div className="mb-8 bg-gray-800 rounded-lg p-4 flex flex-wrap gap-4 justify-between items-center text-sm">
-        <div className="flex items-center gap-2">
-          <i className="ri-flashlight-line text-purple-400"></i>
+      <div className="mb-8 bg-purple-50/50 rounded-lg p-4 flex flex-wrap gap-4 justify-between items-center text-sm border border-purple-100">
+        <div className="flex items-center gap-2 text-purple-700">
+          <i className="ri-flashlight-line"></i>
           <span>AI nopeuttaa sisällöntuotantoa</span>
         </div>
-        <div className="flex items-center gap-2">
-          <i className="ri-time-line text-blue-400"></i>
+        <div className="flex items-center gap-2 text-blue-700">
+          <i className="ri-time-line"></i>
           <span>Älykäs ajastus säästää aikaa</span>
         </div>
-        <div className="flex items-center gap-2">
-          <i className="ri-bar-chart-line text-green-400"></i>
+        <div className="flex items-center gap-2 text-green-700">
+          <i className="ri-bar-chart-line"></i>
           <span>Analytiikka parantaa suorituskykyä</span>
         </div>
       </div>
       {/* Kuvagalleria */}
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4">Kuvagalleria</h2>
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-sm text-gray-600 mb-4">
           Lataa kuvia yrityksestäsi. Näitä kuvia käytetään AI:n luomassa sisällössä.
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
           {profile.images.map((img, idx) => (
             <div key={idx} className="relative group">
-              <img src={img} alt="Kuva" className="w-full h-32 object-cover rounded-md" />
+              <img src={img} alt="Kuva" className="w-full h-32 object-cover rounded-md border border-gray-200" />
               <button
                 type="button"
-                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
                 onClick={() => handleDeleteImage(img)}
               >
                 <i className="ri-close-line"></i>
@@ -274,9 +275,9 @@ function ProfilePage() {
           ))}
           {/* Lisäysnappi */}
           {profile.images.length < MAX_IMAGES && (
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-md h-32 cursor-pointer hover:border-purple-500">
-              <i className="ri-upload-cloud-line text-2xl mb-2"></i>
-              <span className="text-xs">Lisää kuvia</span>
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md h-32 cursor-pointer hover:border-purple-500 bg-gray-50">
+              <i className="ri-upload-cloud-line text-2xl mb-2 text-purple-600"></i>
+              <span className="text-xs text-gray-600">Lisää kuvia</span>
               <input
                 type="file"
                 accept="image/*"
@@ -302,7 +303,7 @@ function ProfilePage() {
               name="company_name"
               value={profile.company_name}
               onChange={handleChange}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             />
           </div>
           <div>
@@ -311,7 +312,7 @@ function ProfilePage() {
               name="industry"
               value={profile.industry}
               onChange={handleChange}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             >
               <option value="">Valitse toimiala</option>
               {industryOptions.map((opt) => (
@@ -327,7 +328,7 @@ function ProfilePage() {
               name="company_size"
               value={profile.company_size}
               onChange={handleChange}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             >
               <option value="">Valitse koko</option>
               {sizeOptions.map((opt) => (
@@ -344,7 +345,7 @@ function ProfilePage() {
               name="location"
               value={profile.location}
               onChange={handleChange}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             />
           </div>
           <div className="md:col-span-2">
@@ -354,7 +355,7 @@ function ProfilePage() {
               name="website"
               value={profile.website}
               onChange={handleChange}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             />
           </div>
         </div>
@@ -370,7 +371,7 @@ function ProfilePage() {
               value={profile.description}
               onChange={handleChange}
               rows={4}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             ></textarea>
           </div>
           <div>
@@ -380,7 +381,7 @@ function ProfilePage() {
               value={profile.tone_of_voice}
               onChange={handleChange}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             ></textarea>
           </div>
           <div>
@@ -390,7 +391,7 @@ function ProfilePage() {
               value={profile.key_messages}
               onChange={handleChange}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             ></textarea>
           </div>
         </div>
@@ -406,7 +407,7 @@ function ProfilePage() {
               value={profile.target_audience}
               onChange={handleChange}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             ></textarea>
           </div>
           <div>
@@ -430,7 +431,7 @@ function ProfilePage() {
                     className={`px-3 py-1 rounded-full border text-sm transition ${
                       selected
                         ? 'bg-purple-600 text-white border-purple-600'
-                        : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+                        : 'bg-gray-50 text-gray-900 border-gray-300 hover:bg-gray-100'
                     }`}
                   >
                     {opt}
@@ -445,7 +446,7 @@ function ProfilePage() {
               name="posting_frequency"
               value={profile.posting_frequency}
               onChange={handleChange}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             >
               <option value="">Valitse</option>
               {frequencyOptions.map((opt) => (
@@ -468,7 +469,7 @@ function ProfilePage() {
               value={profile.content_goals}
               onChange={handleChange}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             ></textarea>
           </div>
           <div>
@@ -478,7 +479,7 @@ function ProfilePage() {
               value={profile.key_topics}
               onChange={handleChange}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-gray-50 border border-gray-300 rounded p-2 text-gray-900"
             ></textarea>
           </div>
         </div>
