@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+// Import the Gunvald logo.  Vite will handle SVG imports as data URIs
+// so we can use the image directly in the header.  The file lives
+// alongside this component in the src directory.
+import GunvaldLogo from './gunvald-logo.svg';
 import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
 
 /**
@@ -22,6 +26,12 @@ const ReaddyHeader = () => {
   // we use a transparent background so the hero section shows through,
   // and light text for maximum contrast.  On other pages (pricing,
   // terms, etc.) we switch to a light background with dark text.
+  // Compute the header styling based on whether we are on the landing page.
+  // On the home page we use a transparent background so the hero section
+  // shows through and add a subtle white border.  On other pages we use
+  // a nearly white background with a light grey border.  This approach
+  // mirrors the Readdy header design, which blends into the hero while
+  // maintaining separation from the rest of the content.
   const headerClasses = isHome
     ? 'bg-transparent backdrop-blur-md border-b border-white/20'
     : 'bg-white/95 border-b border-gray-200';
@@ -30,19 +40,19 @@ const ReaddyHeader = () => {
     <header className={`${headerClasses} shadow-sm relative`}>
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8 flex items-center justify-between py-4">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
-          <a href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg">
-              <i className="ri-robot-2-line text-white text-lg"></i>
-            </div>
-            {/* Switch the logo text colour based on page – white on the
-            landing page so it stands out against the dark hero and
-            dark on other pages. */}
-            <span className={`text-xl font-bold ${isHome ? 'text-white' : 'text-gray-900'}`}>Gunvald</span>
+        <div className="flex items-center">
+          <a href="/" className="flex items-center">
+            {/* Use the actual logo instead of a placeholder icon and text */}
+            <img src={GunvaldLogo} alt="Gunvald logo" className="h-8 w-auto" />
           </a>
         </div>
         {/* Navigation – desktop */}
         <nav className="hidden lg:flex items-center space-x-1">
+          {/* Each link shares common spacing and rounding.  The colours differ
+             depending on the page: white text on the home page and
+             dark grey text on other pages.  Hover backgrounds use
+             translucent white on home (to show the hero through) and
+             light grey on other pages. */}
           <a
             href="/dashboard"
             className={
