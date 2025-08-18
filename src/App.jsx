@@ -11,10 +11,10 @@ import ActionPage from './ActionPage.jsx';
 
 // Import Readdy-inspired components.  These provide the header, hero,
 // feature section and footer for the redesigned landing page.
-import ReaddyHeader from './components/ReaddyHeader.jsx';
-import ReaddyHeroSection from './components/ReaddyHeroSection.jsx';
-import ReaddyFeatureSection from './components/ReaddyFeatureSection.jsx';
-import ReaddyFooter from './components/ReaddyFooter.jsx';
+import ReaddyHeader from './ReaddyHeader.jsx';
+import ReaddyHeroSection from './ReaddyHeroSection.jsx';
+import ReaddyFeatureSection from './ReaddyFeatureSection.jsx';
+import ReaddyFooter from './ReaddyFooter.jsx';
 
 // Home page, static information pages and header/footer definitions.
 // This file defines a custom landing page with a hero section, animated graphic,
