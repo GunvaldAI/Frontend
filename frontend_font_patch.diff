@@ -1,0 +1,20 @@
+*** Begin Patch
+*** Update File: src/index.css
+@@
+-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Salsa&family=Montserrat:wght@300&display=swap');
++@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
++
++/* Updated fonts: Poppins and Roboto replace Inter, Salsa, and Montserrat */
+*** End Patch
+
+*** Begin Patch
+*** Update File: src/designTokens.js
+@@
+ export const fonts = {
+-  heading: 'Inter, sans-serif',
+-  body: 'Nunito, sans-serif',
++  // Updated fonts: use Poppins for headings and Roboto for body text
++  heading: 'Poppins, sans-serif',
++  body: 'Roboto, sans-serif',
+ };
+*** End Patch
