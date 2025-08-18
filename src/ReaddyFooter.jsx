@@ -34,7 +34,7 @@ const ReaddyFooter = () => {
           <ul className="space-y-2">
             <li>
               <a href="/dashboard" className="hover:underline">
-                Dashboard
+                Hallintapaneeli
               </a>
             </li>
             <li>

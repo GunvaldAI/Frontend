@@ -8,6 +8,9 @@ import { SignedIn, SignedOut, useClerk } from '@clerk/clerk-react';
 import ProfilePage from './ProfilePage.jsx';
 // Import the ActionPage component which handles AI post generation.
 import ActionPage from './ActionPage.jsx';
+// Import the dashboard page replicating the Readdy dashboard layout and
+// integrating existing profile and post generation views as tabs.
+import DashboardPage from './DashboardPage.jsx';
 
 // Import Readdy-inspired components.  These provide the header, hero,
 // feature section and footer for the redesigned landing page.
@@ -285,6 +288,9 @@ const App = () => {
       break;
     case '/terms-of-use':
       pageComponent = <TermsPage />;
+      break;
+    case '/dashboard':
+      pageComponent = <DashboardPage />;
       break;
     default:
       pageComponent = <HomePage />;

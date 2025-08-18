@@ -27,16 +27,16 @@ const ReaddyHeader = () => {
         {/* Navigation – desktop */}
         <nav className="hidden lg:flex items-center space-x-1">
           <a href="/dashboard" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
-            Dashboard
+            Hallintapaneeli
           </a>
           <a href="/dashboard/scheduler" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
-            Scheduler
+            Ajastus
           </a>
           <a href="/dashboard/analytics" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
-            Analytics
+            Analytiikka
           </a>
           <a href="/pricing" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/30">
-            Pricing
+            Hinnoittelu
           </a>
         </nav>
         {/* CTA buttons – desktop */}
@@ -75,16 +75,16 @@ const ReaddyHeader = () => {
         <div className="lg:hidden py-4 border-t border-white/20">
           <nav className="flex flex-col space-y-1 px-6">
             <a href="/dashboard" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
-              Dashboard
+              Hallintapaneeli
             </a>
             <a href="/dashboard/scheduler" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
-              Scheduler
+              Ajastus
             </a>
             <a href="/dashboard/analytics" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
-              Analytics
+              Analytiikka
             </a>
             <a href="/pricing" className="text-gray-700 hover:text-gray-900 transition-colors duration-200 text-sm font-medium px-4 py-3 rounded-lg hover:bg-white/30">
-              Pricing
+              Hinnoittelu
             </a>
             <div className="flex flex-col space-y-2 pt-4 border-t border-white/20">
               <SignedOut>
